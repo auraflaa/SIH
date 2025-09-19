@@ -484,12 +484,54 @@
         }
 
         // --- Other Rendering Functions ---
+        function createCollegeCardHTML(college) {
+            const distanceText = college.distance ? `<p class="text-sm text-green-600 font-semibold">${college.distance.toFixed(1)} km away</p>` : '';
+            return `
+                <div class="card p-0 flex flex-col justify-between overflow-hidden">
+                    <div class="cursor-pointer" onclick="showCollegeDetails(${college.id})">
+                        <img src="${college.image}" alt="${college.name}" class="w-full h-40 object-cover">
+                        <div class="p-6">
+                            <h4 class="text-xl font-bold text-blue-800">${college.name}</h4>
+                            <p class="text-gray-600 font-semibold">${college.location}</p>
+                            ${distanceText}
+                        </div>
+                    </div>
+                    <div class="p-6 pt-0 flex items-center justify-between">
+                        <button class="btn-primary text-sm py-2 px-4" onclick="addToApplications(${college.id})">Add to Timeline</button>
+                        <label class="flex items-center space-x-2 cursor-pointer">
+                            <input type="checkbox" class="compare-checkbox" onchange="toggleCompare(${college.id})" ${collegesToCompare.has(college.id) ? 'checked' : ''}>
+                            <span class="text-sm font-semibold">Compare</span>
+                        </label>
+                    </div>
+                </div>`;
+        }
+        function showCollegeDetails(collegeId) { 
+            const college = collegeData.find(c => c.id === collegeId); 
+            if (!college) return; 
+            document.getElementById('college-detail-title').innerText = college.name; 
+            document.getElementById('modal-college-detail-content').innerHTML = `<img src="${college.image}" alt="${college.name}" class="w-full h-48 object-cover rounded-lg mb-4"> <p class="text-gray-700 mb-4">${college.description}</p> <h4 class="font-bold text-lg mb-2">Key Details:</h4> <ul class="list-disc list-inside space-y-1 mb-4"> <li><strong>Location:</strong> ${college.location}</li> <li><strong>Approx. Fees:</strong> ${college.fees}/year</li> <li><strong>Key Courses:</strong> ${college.courses.join(', ')}</li> </ul> <a href="${college.website}" target="_blank" rel="noopener noreferrer" class="btn-primary w-full text-center block">Visit Website</a>`; 
+            showModal('college-detail-modal'); 
+        }
         function renderAllCareerMaps() { const container = document.getElementById('career-paths-container'); container.innerHTML = careerPathData.map(createCareerMapHTML).join(''); }
         function createCareerMapHTML(path) { return ` <details class="bg-white rounded-xl shadow-sm"> <summary class="text-lg text-gray-800">${path.degree} <span class="text-blue-600 font-semibold">-> ${path.title}</span></summary> <div class="p-4 border-t"> ${path.steps.map(step => ` <div class="mb-4"> <h4 class="font-semibold text-md">${step.name}</h4> <p class="text-sm text-gray-600">${step.details}</p> <p class="text-sm mt-1"><strong>Skills:</strong> ${step.skills.join(', ')}</p> <p class="text-sm mt-1"><strong>Recommended Courses:</strong> ${step.courses.map(c => `<a href="${c.url}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">${c.name}</a>`).join(', ')}</p> <p class="text-sm mt-1"><strong>Scholarships:</strong> ${step.scholarships.length > 0 ? step.scholarships.map(s => `<a href="${s.url}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">${s.name}</a>`).join(', ') : 'N/A'}</p> </div> `).join('')} </div> </details> `; }
         function renderColleges(filter = 'All Locations') { const list = document.getElementById('college-list'); if (!list) return; let colleges = [...collegeData]; if (filter !== 'All Locations') { colleges = colleges.filter(c => c.location === filter); } if (userLocation) { colleges.forEach(c => c.distance = getDistance(userLocation.lat, userLocation.lon, c.lat, c.lon)); colleges.sort((a, b) => a.distance - b.distance); } list.innerHTML = colleges.map(createCollegeCardHTML).join(''); feather.replace(); }
         function renderComparison() { const content = document.getElementById('modal-compare-content'); if (collegesToCompare.size < 2) { content.innerHTML = '<p class="text-center sm:col-span-2">Please select at least two colleges to compare.</p>'; showModal('compare-modal'); return; } let compareHTML = ''; collegesToCompare.forEach(id => { const college = collegeData.find(c => c.id === id); if (college) { compareHTML += ` <div class="border p-4 rounded-lg"> <h4 class="font-bold text-lg">${college.name}</h4> <ul class="mt-2 space-y-1 text-sm"> <li><strong>Location:</strong> ${college.location}</li> <li><strong>Fees:</strong> ${college.fees}/year</li> <li><strong>Courses:</strong> ${college.courses.join(', ')}</li> <li><strong>Facilities:</strong> ${college.facilities.join(', ')}</li> </ul> </div> `; } }); content.innerHTML = compareHTML; showModal('compare-modal'); }
         function renderExamHub() { const container = document.getElementById('exam-hub-container'); container.innerHTML = examData.map(exam => `<div class="card p-6 border-l-4 border-blue-500"><h3 class="text-2xl font-bold">${exam.name} <span class="text-lg text-gray-500 font-normal">- ${exam.fullName}</span></h3><p class="text-gray-600 mt-2">${exam.description}</p><div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 text-center"><div><p class="text-sm font-semibold text-gray-500">REGISTRATION ENDS</p><div id="countdown-${exam.name}-reg" class="text-2xl font-bold text-red-600"></div></div><div><p class="text-sm font-semibold text-gray-500">EXAM DATE</p><div id="countdown-${exam.name}-exam" class="text-2xl font-bold text-green-600"></div></div></div><div class="mt-4 text-right"><a href="${exam.website}" target="_blank" rel="noopener noreferrer" class="btn-primary text-sm py-2 px-4">Official Website</a></div></div>`).join(''); updateCountdowns(); }
         function updateCountdowns() { examData.forEach(exam => { updateCountdownFor(`countdown-${exam.name}-reg`, exam.regDate); updateCountdownFor(`countdown-${exam.name}-exam`, exam.examDate); }); }
+        function updateCountdownFor(elementId, targetDate) {
+            const el = document.getElementById(elementId);
+            if (!el) return;
+            const countDownDate = new Date(targetDate).getTime();
+            const intervalId = setInterval(() => {
+                const now = new Date().getTime();
+                const distance = countDownDate - now;
+                if (distance < 0) { el.innerHTML = "EXPIRED"; clearInterval(intervalId); return; }
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                el.innerHTML = `${days}d ${hours}h ${minutes}m`;
+            }, 1000);
+        }
         
         // --- Utility Functions ---
         function getUserLocation() { const btn = document.getElementById('get-location-btn'); btn.innerText = 'Fetching...'; if (navigator.geolocation) { navigator.geolocation.getCurrentPosition(position => { userLocation = { lat: position.coords.latitude, lon: position.coords.longitude }; document.getElementById('location-filter').value = 'All Locations'; renderColleges('All Locations'); btn.innerText = 'Find Nearby'; }, () => { alert("Could not get your location. Please enable location services."); btn.innerText = 'Find Nearby'; }); } else { alert("Geolocation is not supported by this browser."); btn.innerText = 'Find Nearby'; } }
