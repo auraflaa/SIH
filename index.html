@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>J&K Career Navigator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            color: #1f2937;
+        }
+        .container {
+            max-width: 1280px;
+        }
+        .card {
+            background-color: white;
+            border-radius: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+        }
+        .btn-primary {
+            background-color: #1d4ed8;
+            color: white;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            transition: background-color 0.2s;
+        }
+        .btn-primary:hover {
+            background-color: #1e40af;
+        }
+        .quiz-option {
+            background-color: #f9fafb;
+            border: 2px solid #e5e7eb;
+            border-radius: 0.75rem;
+            cursor: pointer;
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+        .quiz-option.selected {
+            background-color: #d1e5f8;
+            border-color: #3b82f6;
+        }
+        .modal {
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        /* Custom scrollbar for better look */
+        .overflow-y-auto::-webkit-scrollbar {
+            width: 8px;
+        }
+        .overflow-y-auto::-webkit-scrollbar-track {
+            background: #e5e7eb;
+        }
+        .overflow-y-auto::-webkit-scrollbar-thumb {
+            background-color: #9ca3af;
+            border-radius: 4px;
+        }
+        details > summary {
+            list-style: none;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        details > summary::-webkit-details-marker {
+            display: none;
+        }
+        details[open] > summary::after {
+            content: "−";
+        }
+        details:not([open]) > summary::after {
+            content: "+";
+        }
+        details > summary::after {
+            font-family: 'Inter', sans-serif;
+            margin-left: 0.5rem;
+            float: right;
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-8">
+
+    <div id="app" class="container mx-auto">
+        <div id="timeline-notification" class="fixed top-4 right-4 z-50 p-4 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 shadow-lg rounded-r-lg transform translate-x-full transition-transform duration-500 ease-in-out" role="alert">
+            <p class="font-bold">Timeline Alert</p>
+            <p id="timeline-message">Upcoming deadlines are near!</p>
+        </div>
+
+        <header class="text-center mb-8">
+            <h1 class="text-4xl sm:text-5xl font-bold text-gray-900 leading-tight">J&K Career Navigator</h1>
+            <p class="mt-2 text-xl text-gray-600">Your path from confusion to clarity</p>
+        </header>
+        
+        <nav class="flex justify-center space-x-2 sm:space-x-4 p-2 bg-white rounded-full shadow-md mb-8">
+            <button id="nav-home" class="py-2 px-4 rounded-full font-semibold text-sm sm:text-base transition-colors hover:bg-gray-200">Home</button>
+            <button id="nav-quiz" class="py-2 px-4 rounded-full font-semibold text-sm sm:text-base transition-colors hover:bg-gray-200">Career Quest Quiz</button>
+            <button id="nav-colleges" class="py-2 px-4 rounded-full font-semibold text-sm sm:text-base transition-colors hover:bg-gray-200">Nearby Colleges</button>
+            <button id="nav-map" class="py-2 px-4 rounded-full font-semibold text-sm sm:text-base transition-colors hover:bg-gray-200">Career Maps</button>
+        </nav>
+
+        <div id="content-area">
+            
+            <div id="section-home" class="card">
+                <h2 class="text-3xl font-bold text-blue-800 mb-4">Welcome to Your Career Journey</h2>
+                <p class="text-gray-700 mb-6">Start your journey to a purposeful career by taking our interactive "Career Quest" quiz to discover your strengths and interests. Your personalized dashboard awaits!</p>
+                <button id="start-quiz-btn" class="btn-primary">Start the Quiz</button>
+                
+                <div id="my-applications" class="mt-8 pt-8 border-t border-gray-200">
+                    <h3 class="text-2xl font-bold mb-4">My Application Timeline</h3>
+                    <div id="applications-list" class="space-y-4">
+                        <p class="text-gray-500">Add colleges from the "Nearby Colleges" section to track your applications.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="section-quiz" class="card hidden">
+                <h2 class="text-3xl font-bold text-blue-800 mb-6">Career Quest Quiz</h2>
+                
+                <div id="quiz-container">
+                    </div>
+                
+                <div id="quiz-completion" class="text-center p-8 hidden">
+                    <h3 class="text-2xl font-bold mb-4">You've completed the quiz!</h3>
+                    <p class="text-gray-700 mb-6">Ready to see your personalized career recommendations?</p>
+                    <button id="show-results-btn" class="btn-primary">Show My Results</button>
+                </div>
+
+                <div id="quiz-results-display" class="mt-8 hidden">
+                    <h3 class="text-2xl font-bold mb-4">Your Personalized Results</h3>
+                    <div id="quiz-result-card" class="card p-6 border-blue-200 border-2 mb-6">
+                        <p class="text-xl font-semibold">Your Primary Inclination: <span id="quiz-result-text" class="text-blue-600"></span></p>
+                    </div>
+
+                    <div class="space-x-4 flex justify-center mb-8">
+                        <button id="retake-quiz-btn" class="btn-primary">Retake Quiz</button>
+                    </div>
+                    
+                    <div id="recommended-career-maps-container" class="mt-8">
+                        <h4 class="text-xl font-semibold text-gray-800 mb-4">Recommended Career Maps</h4>
+                        <div id="recommended-career-maps" class="space-y-4">
+                            <p class="text-gray-500">Take the quiz to get personalized recommendations!</p>
+                        </div>
+                    </div>
+
+                    <div id="recommended-colleges-container" class="mt-8">
+                        <h4 class="text-xl font-semibold text-gray-800 mb-4">Recommended Colleges</h4>
+                        <div id="recommended-colleges" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <p class="text-gray-500">Take the quiz to get personalized recommendations!</p>
+                        </div>
+                    </div>
+                    
+                    <h4 class="text-xl font-semibold text-gray-800 mt-6 mb-4">Career Spotlights: Local Heroes</h4>
+                    <div id="career-spotlights" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        </div>
+
+                    <div id="startup-hub" class="mt-8 pt-8 border-t border-gray-200 hidden">
+                        <h4 class="text-xl font-semibold text-gray-800 mt-8 mb-4">The Startup Resource Hub</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <a href="#" class="card p-6 flex flex-col items-start hover:shadow-lg transition-shadow">
+                                <h5 class="text-lg font-bold text-blue-700">J&K Entrepreneurship Development Institute (JKEDI)</h5>
+                                <p class="text-sm text-gray-600 mt-2">Get training and support to start your business.</p>
+                            </a>
+                            <a href="#" class="card p-6 flex flex-col items-start hover:shadow-lg transition-shadow">
+                                <h5 class="text-lg font-bold text-blue-700">Startup India & MSME Loan Schemes</h5>
+                                <p class="text-sm text-gray-600 mt-2">Explore government schemes and financial aid for new ventures.</p>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="section-colleges" class="card hidden">
+                <h2 class="text-3xl font-bold text-blue-800 mb-6">Find Your College</h2>
+                <div class="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4 mb-6">
+                    <button id="get-location-btn" class="btn-primary">Find Nearby Colleges</button>
+                    <p class="font-semibold text-gray-700 hidden sm:block">or</p>
+                    <select id="location-filter" class="w-full sm:w-auto p-2 border rounded-lg">
+                        <option value="All Locations">All Locations</option>
+                        <option value="Srinagar">Srinagar</option>
+                        <option value="Jammu">Jammu</option>
+                        <option value="Anantnag">Anantnag</option>
+                        <option value="Baramulla">Baramulla</option>
+                    </select>
+                </div>
+                
+                <div id="college-list" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    </div>
+            </div>
+
+            <div id="section-map" class="card hidden">
+                <h2 class="text-3xl font-bold text-blue-800 mb-6">Visual Career Maps</h2>
+                <p class="text-gray-700 mb-6">Follow a step-by-step roadmap for your desired career, including skills, courses, and scholarships.</p>
+
+                <div class="space-y-8" id="career-paths-container">
+                    </div>
+
+            </div>
+        </div>
+
+        <div id="compare-modal" class="modal fixed inset-0 flex items-center justify-center p-4 z-50 hidden">
+            <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-4xl max-h-full overflow-y-auto">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-2xl font-bold">Compare Colleges</h3>
+                    <button class="text-gray-400 hover:text-gray-600 text-3xl font-bold" onclick="hideModal('compare-modal')">&times;</button>
+                </div>
+                <div id="modal-compare-content" class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Core Application Logic ---
+        
+        // State Management
+        let currentView = 'home';
+        let currentQuestionIndex = 0;
+        let quizResults = {};
+        let userLocation = { lat: 34.0837, lon: 74.7972 }; // Default to Srinagar
+        let collegesToCompare = [];
+        let myApplications = [];
+        
+        // Data Definitions
+        const quizData = [
+            {
+                question: "When faced with a problem, what's your first instinct?",
+                options: [
+                    { text: "Break it down and analyze the details.", personality: "Analytical", category: "Technical" },
+                    { text: "Look for a new, creative way to solve it.", personality: "Innovative", category: "Creative" },
+                    { text: "Collaborate with others to find a solution.", personality: "Collaborative", category: "Social" },
+                    { text: "Take charge and lead the effort to fix it.", personality: "Leader", category: "Entrepreneurial" }
+                ]
+            },
+            {
+                question: "What kind of projects do you enjoy most?",
+                options: [
+                    { text: "Building something practical and functional.", personality: "Builder", category: "Technical" },
+                    { text: "Creating a work of art or design.", personality: "Artist", category: "Creative" },
+                    { text: "Helping people and making a positive impact.", personality: "Helper", category: "Social" },
+                    { text: "Starting something from scratch and seeing it grow.", personality: "Founder", category: "Entrepreneurial" }
+                ]
+            },
+            {
+                question: "Which of these subjects interests you the most?",
+                options: [
+                    { text: "Physics, Mathematics, and Computer Science.", personality: "Logical", category: "Technical" },
+                    { text: "Literature, Art, and Music.", personality: "Expressive", category: "Creative" },
+                    { text: "Psychology, Sociology, and Political Science.", personality: "Empathetic", category: "Social" },
+                    { text: "Economics, Business, and Marketing.", personality: "Strategic", category: "Entrepreneurial" }
+                ]
+            },
+             {
+                question: "What motivates you in a team setting?",
+                options: [
+                    { text: "Achieving a well-defined goal.", personality: "Goal-Oriented", category: "Technical" },
+                    { text: "Contributing a unique idea or perspective.", personality: "Visionary", category: "Creative" },
+                    { text: "Building strong relationships with your teammates.", personality: "Harmonizer", category: "Social" },
+                    { text: "Leading the team and inspiring others.", personality: "Motivator", category: "Entrepreneurial" }
+                ]
+            }
+        ];
+
+        const careerPathData = [
+            {
+                degree: "B.Sc. Agriculture",
+                maps: [
+                    {
+                        title: "Agricultural Scientist",
+                        steps: [
+                            { name: "Undergraduate Degree", details: "Complete B.Sc. Agriculture or related degree.", skills: ["Soil Science", "Plant Biology"], courses: ["B.Sc. Agriculture", "Intro to Agronomy"], scholarships: ["State Agriculture Scholarships"] },
+                            { name: "Research & Specialization", details: "Join a research lab or master's program in crop science.", skills: ["Research Methods", "Statistics"], courses: ["M.Sc. Agriculture", "Plant Breeding"], scholarships: ["University Research Grants"] }
+                        ]
+                    }
+                ]
+            },
+            {
+                degree: "B.Voc / BBA",
+                maps: [
+                    {
+                        title: "Digital Marketing Specialist",
+                        steps: [
+                            { name: "Basics of Marketing", details: "Learn marketing fundamentals and digital tools.", skills: ["SEO", "Content Creation"], courses: ["Digital Marketing Basics", "Google Digital Garage"], scholarships: ["Platform-based Scholarships"] }
+                        ]
+                    }
+                ]
+            },
+            {
+                degree: "BA/MA Social Sciences",
+                maps: [
+                    {
+                        title: "Public Service Path",
+                        steps: [
+                            { name: "Foundational Studies", details: "Study history, polity and public administration.", skills: ["Critical Thinking", "Policy Analysis"], courses: ["Public Administration", "Sociology"], scholarships: ["Civil Services Coaching Scholarships"] }
+                        ]
+                    }
+                ]
+            },
+            {
+                degree: "B.Tech / B.Sc. Agriculture",
+                maps: [
+                    {
+                        title: "Agri-Tech Entrepreneur",
+                        steps: [
+                            { name: "Technical Foundation", details: "Learn about agri systems and technology integration.", skills: ["IoT", "System Design"], courses: ["AgriTech Intro", "IoT for Agriculture"], scholarships: ["Startup Grants & Incubators"] }
+                        ]
+                    }
+                ]
+            }
+        ];
+
+        const collegeData = [
+            { id: 1, name: "University of Jammu", location: "Jammu", fees: "₹30,000/year", courses: ["B.Sc.", "B.A.", "B. Tech."], facilities: ["Library", "Hostel", "Labs"], lat: 32.7357, lon: 74.8698 },
+            { id: 2, name: "Govt. Degree College, Baramulla", location: "Baramulla", fees: "₹15,000/year", courses: ["B.Sc.", "B.Com."], facilities: ["Library", "Sports"], lat: 34.2045, lon: 74.3644 },
+            { id: 3, name: "Islamic University of Science & Technology", location: "Awantipora", fees: "₹25,000/year", courses: ["B.Tech.", "B.Sc."], facilities: ["Research Labs", "Hostels"], lat: 33.8860, lon: 75.0500 },
+            { id: 4, name: "Govt. College for Women, M.A. Road", location: "Srinagar", fees: "₹12,000/year", courses: ["B.A.", "B.Voc."], facilities: ["Auditorium", "Library"], lat: 34.0837, lon: 74.7972 },
+            { id: 5, name: "GDC Boys, Anantnag", location: "Anantnag", fees: "₹10,000/year", courses: ["B.A.", "B.Sc."], facilities: ["Laboratories", "Hostel"], lat: 33.7317, lon: 75.1539 }
+        ];
+
+        const spotlightData = [
+            { name: "Tariq Ahmad Wani", bio: "Agri-tech entrepreneur.", category: "Entrepreneurial" },
+            { name: "Mir Muneeb", bio: "Software engineer.", category: "Technical" },
+            { name: "Sana Imtiyaz Hussaini", bio: "Home-based baker.", category: "Entrepreneurial" },
+            { name: "Zahoor Ahmad", bio: "Social worker.", category: "Social" }
+        ];
+
+        const timelineEvents = [
+            { id: 1, name: "SKUAST Admission Application", date: "2025-10-15" },
+            { id: 2, name: "JKEDI Startup Training Registration", date: "2025-11-05" },
+            { id: 3, name: "National Scholarship Portal Deadline", date: "2025-12-01" },
+        ];
+
+        // Element references
+        const views = {
+            home: document.getElementById('section-home'),
+            quiz: document.getElementById('section-quiz'),
+            colleges: document.getElementById('section-colleges'),
+            map: document.getElementById('section-map')
+        };
+        const navButtons = {
+            home: document.getElementById('nav-home'),
+            quiz: document.getElementById('nav-quiz'),
+            colleges: document.getElementById('nav-colleges'),
+            map: document.getElementById('nav-map')
+        };
+
+        const quizContainer = document.getElementById('quiz-container');
+        const startQuizBtn = document.getElementById('start-quiz-btn');
+        const locationFilter = document.getElementById('location-filter');
+        const getLocationBtn = document.getElementById('get-location-btn');
+        const myApplicationsList = document.getElementById('applications-list');
+        const careerPathsContainer = document.getElementById('career-paths-container');
+        const collegeList = document.getElementById('college-list');
+        const quizResultsDisplay = document.getElementById('quiz-results-display');
+        const recommendedCareerMaps = document.getElementById('recommended-career-maps');
+        const recommendedColleges = document.getElementById('recommended-colleges');
+        const spotlightsContainer = document.getElementById('career-spotlights');
+        const startupHub = document.getElementById('startup-hub');
+        const quizCompletion = document.getElementById('quiz-completion');
+        const compareModal = document.getElementById('compare-modal');
+        const showResultsBtn = document.getElementById('show-results-btn');
+        const retakeQuizBtn = document.getElementById('retake-quiz-btn');
+
+        // --- Core Functions ---
+        function navigate(view) {
+            Object.values(views).forEach(v => v.classList.add('hidden'));
+            views[view].classList.remove('hidden');
+            Object.values(navButtons).forEach(b => b.cl
