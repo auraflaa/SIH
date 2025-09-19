@@ -603,6 +603,15 @@
         }
 
         // --- Chatbot Functions (AI Powered) ---
+        function parseMarkdown(text) {
+            // A simple markdown parser for bold text. It first sanitizes basic HTML characters.
+            // Note: For a production app, a more robust library like DOMPurify would be recommended for security.
+            let sanitizedText = text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            // Convert **bold** to <strong>bold</strong>
+            sanitizedText = sanitizedText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            return sanitizedText;
+        }
+
         function addChatMessage(message, sender, isLoading = false) {
             const messageElement = document.createElement('div');
             messageElement.className = `chat-message ${sender}-message`;
@@ -610,7 +619,7 @@
                 messageElement.innerHTML = `<div class="flex items-center space-x-2"><div class="w-2 h-2 rounded-full bg-gray-400 animate-pulse"></div><div class="w-2 h-2 rounded-full bg-gray-400 animate-pulse [animation-delay:0.2s]"></div><div class="w-2 h-2 rounded-full bg-gray-400 animate-pulse [animation-delay:0.4s]"></div></div>`;
                 messageElement.id = 'loading-indicator';
             } else {
-                messageElement.innerText = message;
+                messageElement.innerHTML = parseMarkdown(message);
             }
             chatMessages.appendChild(messageElement);
             chatMessages.scrollTop = chatMessages.scrollHeight;
@@ -921,4 +930,5 @@
     </script>
 </body>
 </html>
+
 
