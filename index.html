@@ -221,8 +221,13 @@
                         <option value="Srinagar">Srinagar</option>
                         <option value="Jammu">Jammu</option>
                         <option value="Anantnag">Anantnag</option>
-                        <option value="Baramulla">Baramulla</option>
                         <option value="Awantipora">Awantipora</option>
+                        <option value="Baramulla">Baramulla</option>
+                        <option value="Pulwama">Pulwama</option>
+                        <option value="Kathua">Kathua</option>
+                        <option value="Sopore">Sopore</option>
+                        <option value="Katra">Katra</option>
+                        <option value="Rajouri">Rajouri</option>
                     </select>
                 </div>
                 <div id="compare-colleges-bar" class="hidden text-center my-4">
@@ -328,11 +333,39 @@
         ];
 
         const collegeData = [
-            { id: 1, name: "University of Jammu", location: "Jammu", fees: "₹30,000", courses: ["B.Sc.", "B.A.", "B.Tech.", "BBA"], facilities: ["Library", "Hostel", "Labs", "Wi-Fi"], lat: 32.7357, lon: 74.8698, category: ["Technical", "Social"] },
-            { id: 2, name: "Govt. Degree College, Baramulla", location: "Baramulla", fees: "₹15,000", courses: ["B.Sc.", "B.Com."], facilities: ["Library", "Sports"], lat: 34.2045, lon: 74.3644, category: ["Technical"] },
-            { id: 3, name: "IUST, Awantipora", location: "Awantipora", fees: "₹25,000", courses: ["B.Tech.", "B.Sc."], facilities: ["Research Labs", "Hostels"], lat: 33.8860, lon: 75.0500, category: ["Technical"] },
+            // Jammu Division
+            { id: 1, name: "University of Jammu", location: "Jammu", fees: "₹30,000", courses: ["B.Sc.", "B.A.", "B.Tech.", "BBA"], facilities: ["Library", "Hostel", "Labs", "Wi-Fi"], lat: 32.7357, lon: 74.8698, category: ["Technical", "Social", "Creative"] },
+            { id: 6, name: "IIT Jammu", location: "Jammu", fees: "₹2,15,000", courses: ["B.Tech.", "M.Tech."], facilities: ["Advanced Labs", "Hostel", "Sports Complex"], lat: 32.6885, lon: 74.8835, category: ["Technical"] },
+            { id: 7, name: "IIM Jammu", location: "Jammu", fees: "₹17,00,000", courses: ["MBA", "PGDM"], facilities: ["Modern Campus", "Library", "Hostel"], lat: 32.7766, lon: 74.8726, category: ["Entrepreneurial"] },
+            { id: 8, name: "Govt. Medical College, Jammu", location: "Jammu", fees: "₹50,000", courses: ["MBBS", "MD"], facilities: ["Hospital", "Labs", "Hostel"], lat: 32.7169, lon: 74.8649, category: ["Technical", "Social"] },
+            { id: 9, name: "Govt. College of Engineering & Technology, Jammu", location: "Jammu", fees: "₹45,000", courses: ["B.E.", "B.Tech."], facilities: ["Workshops", "Library", "Labs"], lat: 32.7876, lon: 74.8605, category: ["Technical"] },
+            { id: 10, name: "Shri Mata Vaishno Devi University", location: "Katra", fees: "₹1,80,000", courses: ["B.Tech.", "MBA", "M.Sc."], facilities: ["Residential Campus", "Labs", "Library"], lat: 32.9348, lon: 74.9511, category: ["Technical", "Entrepreneurial"] },
+            { id: 11, name: "Baba Ghulam Shah Badshah University", location: "Rajouri", fees: "₹40,000", courses: ["B.Tech.", "MCA", "MBA"], facilities: ["Hostel", "Library", "Transport"], lat: 33.4862, lon: 74.3168, category: ["Technical", "Social"] },
+            { id: 12, name: "Govt. Degree College, Kathua", location: "Kathua", fees: "₹12,000", courses: ["B.A.", "B.Sc.", "B.Com."], facilities: ["Library", "Sports Ground"], lat: 32.3725, lon: 75.5204, category: ["Social", "Creative"] },
+            { id: 13, name: "MIET Jammu", location: "Jammu", fees: "₹90,000", courses: ["B.E.", "MBA", "MCA"], facilities: ["Labs", "Library", "Canteen"], lat: 32.6582, lon: 74.9123, category: ["Technical", "Entrepreneurial"] },
+            { id: 14, name: "Cluster University of Jammu", location: "Jammu", fees: "₹20,000", courses: ["Integrated M.A.", "M.Sc."], facilities: ["Multiple Campuses", "Labs"], lat: 32.7303, lon: 74.8708, category: ["Social", "Creative"] },
+            { id: 15, name: "Central University of Jammu", location: "Jammu", fees: "₹25,000", courses: ["M.A.", "M.Sc.", "Ph.D."], facilities: ["Campus", "Library", "Hostel"], lat: 32.6288, lon: 74.9989, category: ["Technical", "Social"] },
+
+            // Kashmir Division
             { id: 4, name: "Govt. College for Women, M.A. Road", location: "Srinagar", fees: "₹12,000", courses: ["B.A.", "B.Voc.", "B.A. Fine Arts"], facilities: ["Auditorium", "Library"], lat: 34.0837, lon: 74.7972, category: ["Creative", "Social"] },
-            { id: 5, name: "GDC Boys, Anantnag", location: "Anantnag", fees: "₹10,000", courses: ["B.A.", "B.Sc."], facilities: ["Laboratories", "Hostel"], lat: 33.7317, lon: 75.1539, category: ["Social"] }
+            { id: 16, name: "University of Kashmir", location: "Srinagar", fees: "₹25,000", courses: ["M.A.", "M.Sc.", "LL.B."], facilities: ["Campus", "Library", "Naseem Bagh"], lat: 34.1206, lon: 74.8322, category: ["Social", "Creative", "Technical"] },
+            { id: 17, name: "NIT Srinagar", location: "Srinagar", fees: "₹1,25,000", courses: ["B.Tech.", "M.Tech."], facilities: ["Labs", "Hostel", "Dal Lake View"], lat: 34.1211, lon: 74.8340, category: ["Technical"] },
+            { id: 18, name: "SKIMS Medical College", location: "Srinagar", fees: "₹60,000", courses: ["MBBS"], facilities: ["Hospital", "Advanced Labs"], lat: 34.1504, lon: 74.8030, category: ["Technical", "Social"] },
+            { id: 19, name: "SKUAST-Kashmir", location: "Srinagar", fees: "₹35,000", courses: ["B.Sc. Agriculture", "B.V.Sc."], facilities: ["Farms", "Labs", "Hostel"], lat: 34.1446, lon: 74.8306, category: ["Technical"] },
+            { id: 2, name: "Govt. Degree College, Baramulla", location: "Baramulla", fees: "₹15,000", courses: ["B.Sc.", "B.Com."], facilities: ["Library", "Sports"], lat: 34.2045, lon: 74.3644, category: ["Technical", "Social"] },
+            { id: 3, name: "IUST, Awantipora", location: "Awantipora", fees: "₹25,000", courses: ["B.Tech.", "B.Sc.", "MBA"], facilities: ["Research Labs", "Hostels"], lat: 33.8860, lon: 75.0500, category: ["Technical", "Entrepreneurial"] },
+            { id: 5, name: "GDC Boys, Anantnag", location: "Anantnag", fees: "₹10,000", courses: ["B.A.", "B.Sc."], facilities: ["Laboratories", "Hostel"], lat: 33.7317, lon: 75.1539, category: ["Social"] },
+            { id: 20, name: "Govt. Medical College, Anantnag", location: "Anantnag", fees: "₹55,000", courses: ["MBBS"], facilities: ["Hospital", "Labs"], lat: 33.7431, lon: 75.1456, category: ["Technical", "Social"] },
+            { id: 21, name: "Govt. Degree College, Sopore", location: "Sopore", fees: "₹14,000", courses: ["B.A.", "B.Sc."], facilities: ["Library", "Playground"], lat: 34.2917, lon: 74.4608, category: ["Social"] },
+            { id: 22, name: "Amar Singh College, Srinagar", location: "Srinagar", fees: "₹18,000", courses: ["B.A.", "B.Sc.", "B.Com."], facilities: ["Heritage Campus", "Library"], lat: 34.0765, lon: 74.8063, category: ["Social", "Creative"] },
+            { id: 23, name: "SP College, Srinagar", location: "Srinagar", fees: "₹17,000", courses: ["B.Sc.", "BCA"], facilities: ["Science Labs", "Library"], lat: 34.0740, lon: 74.8078, category: ["Technical"] },
+            { id: 24, name: "Govt. Degree College for Boys, Pulwama", location: "Pulwama", fees: "₹11,000", courses: ["B.A.", "B.Sc."], facilities: ["Library", "Labs"], lat: 33.8732, lon: 74.9192, category: ["Social"] },
+            { id: 25, name: "Central University of Kashmir", location: "Ganderbal", fees: "₹22,000", courses: ["Integrated M.Sc.", "M.A."], facilities: ["New Campus", "Hostel"], lat: 34.2256, lon: 74.6980, category: ["Technical", "Social"] },
+            { id: 26, name: "Cluster University of Srinagar", location: "Srinagar", fees: "₹21,000", courses: ["Integrated B.A-M.A", "B.Ed."], facilities: ["Constituent Colleges"], lat: 34.0754, lon: 74.8085, category: ["Social", "Creative"] },
+            { id: 27, name: "Govt. Medical College, Baramulla", location: "Baramulla", fees: "₹55,000", courses: ["MBBS"], facilities: ["Associated Hospital", "Labs"], lat: 34.1950, lon: 74.3480, category: ["Technical", "Social"] },
+            { id: 28, name: "Islamic College of Science and Commerce", location: "Srinagar", fees: "₹20,000", courses: ["B.Sc. IT", "BBA", "B.Com."], facilities: ["Labs", "Library"], lat: 34.0926, lon: 74.7981, category: ["Technical", "Entrepreneurial"] },
+            { id: 29, name: "Govt. Degree College, Kupwara", location: "Kupwara", fees: "₹10,000", courses: ["B.A.", "B.Sc."], facilities: ["Library", "Computer Lab"], lat: 34.5269, lon: 74.2605, category: ["Social"] },
+            { id: 30, name: "Govt. Degree College, Kulgam", location: "Kulgam", fees: "₹10,000", courses: ["B.A.", "B.Sc."], facilities: ["Library", "Reading Room"], lat: 33.6429, lon: 75.0210, category: ["Social"] }
         ];
 
         const spotlightData = [
@@ -676,4 +709,5 @@
     </script>
 </body>
 </html>
+
 
