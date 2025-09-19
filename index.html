@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>J&K Career Navigator</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/phosphor-icons/1.4.2/css/phosphor.min.css" rel="stylesheet">
+    <!-- Use Feather Icons via script for better reliability -->
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         :root {
@@ -99,7 +100,6 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2rem;
             box-shadow: 0 4px 12px rgba(0,0,0,0.2);
             cursor: pointer;
             transition: transform 0.3s ease;
@@ -232,7 +232,8 @@
 
     <!-- AI Chatbot UI -->
     <div id="chatbot-fab">
-        <i class="ph-chats-fill"></i>
+        <!-- Feather icon placeholder -->
+        <i data-feather="message-square"></i>
     </div>
     <div id="chatbot-window" class="hidden transform scale-0 opacity-0">
         <div class="p-4 bg-blue-700 text-white rounded-t-2xl shadow-md">
@@ -244,7 +245,10 @@
         </div>
         <div class="p-4 border-t flex space-x-2">
             <input type="text" id="chat-input" placeholder="Type a message..." class="flex-1 p-2 border rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <button id="chat-send-btn" class="bg-blue-600 text-white rounded-full w-10 h-10 flex items-center justify-center"><i class="ph-paper-plane-right-fill"></i></button>
+            <button id="chat-send-btn" class="bg-blue-600 text-white rounded-full w-10 h-10 flex items-center justify-center">
+                <!-- Feather icon placeholder -->
+                <i data-feather="arrow-right"></i>
+            </button>
         </div>
     </div>
 
@@ -424,7 +428,7 @@
                     section.innerHTML = `<h2 class="text-3xl font-bold text-blue-800 mb-6">Find Your College</h2>
                         <div class="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4 mb-6"><button id="get-location-btn" class="btn-primary">Find Nearby</button><p class="font-semibold text-gray-700 hidden sm:block">or</p><select id="location-filter" class="w-full sm:w-auto p-3 border rounded-lg shadow-sm"></select></div>
                         <div id="compare-colleges-bar" class="hidden text-center my-4"><button id="compare-colleges-btn" class="btn-primary">Compare Selected</button></div>
-                        <div id="college-list" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>`;
+                        <div id="college-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>`;
                     populateLocationFilter();
                     renderColleges();
                     document.getElementById('get-location-btn').addEventListener('click', getUserLocation);
@@ -460,6 +464,7 @@
             const savedResult = localStorage.getItem('careerNavigatorResult');
             if(savedResult) {
                 quizAnswers.result = savedResult;
+                navigate('quiz');
                 renderSection('quiz');
                 document.getElementById('quiz-container').classList.add('hidden');
                 document.getElementById('quiz-completion').classList.add('hidden');
@@ -550,7 +555,7 @@
                 el.innerHTML = `${days}d ${hours}h ${minutes}m ${seconds}s`;
             }, 1000);
         }
-        
+
         // --- College Details Functions ---
         function showCollegeDetails(collegeId) {
             const college = collegeData.find(c => c.id === collegeId);
@@ -597,37 +602,77 @@
             window.location.href = `mailto:${email}?subject=Mentorship Request from J&K Career Navigator&body=Hello ${name},%0D%0A%0D%0AI found your profile on the J&K Career Navigator app and I am very inspired by your work. I would be grateful for the opportunity to connect and learn from your experience.%0D%0A%0D%0AThank you,%0D%0A[Your Name]`;
         }
 
-        // --- Chatbot Functions ---
-        function handleChatMessage() {
+        // --- Chatbot Functions (AI Powered) ---
+        function addChatMessage(message, sender, isLoading = false) {
+            const messageElement = document.createElement('div');
+            messageElement.className = `chat-message ${sender}-message`;
+            if (isLoading) {
+                messageElement.innerHTML = `<div class="flex items-center space-x-2"><div class="w-2 h-2 rounded-full bg-gray-400 animate-pulse"></div><div class="w-2 h-2 rounded-full bg-gray-400 animate-pulse [animation-delay:0.2s]"></div><div class="w-2 h-2 rounded-full bg-gray-400 animate-pulse [animation-delay:0.4s]"></div></div>`;
+                messageElement.id = 'loading-indicator';
+            } else {
+                messageElement.innerText = message;
+            }
+            chatMessages.appendChild(messageElement);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        async function handleChatMessage() {
             const userInput = chatInput.value.trim();
             if (userInput === "") return;
             
             addChatMessage(userInput, 'user');
             chatInput.value = "";
             
-            setTimeout(() => {
-                const botResponse = getBotResponse(userInput);
+            addChatMessage('', 'bot', true); // Show loading indicator
+
+            try {
+                const botResponse = await getGeminiResponse(userInput);
+                const loadingIndicator = document.getElementById('loading-indicator');
+                if(loadingIndicator) loadingIndicator.remove();
                 addChatMessage(botResponse, 'bot');
-            }, 1000);
+            } catch (error) {
+                const loadingIndicator = document.getElementById('loading-indicator');
+                if(loadingIndicator) loadingIndicator.remove();
+                addChatMessage("Sorry, I'm having trouble connecting right now. Please try again later.", 'bot');
+                console.error("Error fetching from Gemini API:", error);
+            }
         }
 
-        function addChatMessage(message, sender) {
-            const messageElement = document.createElement('div');
-            messageElement.className = `chat-message ${sender}-message`;
-            messageElement.innerText = message;
-            chatMessages.appendChild(messageElement);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
+        async function getGeminiResponse(prompt) {
+            const apiKey = ""; // Leave this empty, Canvas will provide it.
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
 
-        function getBotResponse(input) {
-            const lowerInput = input.toLowerCase();
-            if (lowerInput.includes("college")) return "You can find a comprehensive list of colleges in the 'Colleges' section. You can even filter them by location!";
-            if (lowerInput.includes("exam")) return "Head over to the 'Exam Hub' for detailed information and countdowns for major entrance exams like NEET, JEE, and JKCET.";
-            if (lowerInput.includes("career") || lowerInput.includes("job")) return "Take the 'Career Quest' quiz! It will give you personalized recommendations for career maps and courses.";
-            if (lowerInput.includes("hello") || lowerInput.includes("hi")) return "Hello! How can I help you plan your career journey today?";
-            return "I'm here to help with your career questions. You can ask me about colleges, exams, or career paths!";
-        }
+            const systemPrompt = "You are an expert career counselor for students in Jammu & Kashmir. Your tone is encouraging and helpful. You have access to the app's data on colleges, exams, and career paths. Keep your answers concise and focused on the user's question.";
 
+            const payload = {
+                systemInstruction: {
+                    parts: [{ text: systemPrompt }]
+                },
+                contents: [{
+                    parts: [{ text: prompt }]
+                }],
+            };
+
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                throw new Error(`API request failed with status ${response.status}`);
+            }
+
+            const result = await response.json();
+            const candidate = result.candidates?.[0];
+
+            if (candidate && candidate.content?.parts?.[0]?.text) {
+                return candidate.content.parts[0].text;
+            } else {
+                return "I'm not sure how to respond to that. Could you ask in a different way?";
+            }
+        }
+        
         // --- Quiz Functions ---
         function startQuiz() {
             currentQuestionIndex = 0;
@@ -708,6 +753,7 @@
                     <button class="btn-primary" onclick="startQuiz()">Retake Quiz</button>
                 </div>
             `;
+            feather.replace();
         }
 
         // --- Other Render Functions ---
@@ -737,6 +783,7 @@
 
         function renderColleges(filter = 'All Locations') {
             const list = document.getElementById('college-list');
+            if (!list) return;
             let colleges = [...collegeData];
             if (filter !== 'All Locations') {
                 colleges = colleges.filter(c => c.location === filter);
@@ -746,10 +793,12 @@
                 colleges.sort((a, b) => a.distance - b.distance);
             }
             list.innerHTML = colleges.map(createCollegeCardHTML).join('');
+            feather.replace();
         }
 
         function renderComparison() {
             const content = document.getElementById('modal-compare-content');
+            const compareBtn = document.getElementById('compare-colleges-btn');
             if (collegesToCompare.size < 2) {
                 content.innerHTML = '<p class="text-center sm:col-span-2">Please select at least two colleges to compare.</p>';
                 showModal('compare-modal');
@@ -779,13 +828,21 @@
 
         // --- Utility Functions ---
         function getUserLocation() {
+            const btn = document.getElementById('get-location-btn');
+            btn.innerText = 'Fetching...';
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(position => {
                     userLocation = { lat: position.coords.latitude, lon: position.coords.longitude };
-                    renderColleges(document.getElementById('location-filter').value);
+                    document.getElementById('location-filter').value = 'All Locations';
+                    renderColleges('All Locations');
+                    btn.innerText = 'Find Nearby';
+                }, () => {
+                     alert("Could not get your location. Please enable location services in your browser.");
+                     btn.innerText = 'Find Nearby';
                 });
             } else {
                 alert("Geolocation is not supported by this browser.");
+                btn.innerText = 'Find Nearby';
             }
         }
         
@@ -798,12 +855,18 @@
         }
         
         function toggleCompare(id) {
-            if (collegesToCompare.has(id)) {
-                collegesToCompare.delete(id);
-            } else {
+            const checkbox = event.target;
+            if (checkbox.checked) {
                 collegesToCompare.add(id);
+            } else {
+                collegesToCompare.delete(id);
             }
-            document.getElementById('compare-colleges-bar').classList.toggle('hidden', collegesToCompare.size === 0);
+            const bar = document.getElementById('compare-colleges-bar');
+            const btn = document.getElementById('compare-colleges-btn');
+            if (bar && btn) {
+                bar.classList.toggle('hidden', collegesToCompare.size === 0);
+                btn.innerText = `Compare Selected (${collegesToCompare.size})`;
+            }
         }
 
         function checkTimeline() {
@@ -829,6 +892,9 @@
         
         // --- Event Listeners and Initialization ---
         window.addEventListener('DOMContentLoaded', () => {
+            // Initialize Feather Icons
+            feather.replace();
+
             // Navigation listeners
             navButtons.home.addEventListener('click', () => navigate('home'));
             navButtons.quiz.addEventListener('click', () => { navigate('quiz'); renderSection('quiz'); });
