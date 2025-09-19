@@ -118,14 +118,22 @@
         .fade-in {
             animation: fadeIn 0.6s ease-out forwards;
         }
+
+        /* Confetti Animation Styles */
+        @keyframes drop {
+            100% {
+                transform: translateY(110vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
     </style>
 </head>
 <body class="p-4 sm:p-0">
 
     <div id="app" class="container mx-auto">
-        <div id="timeline-notification" class="fixed top-24 right-4 z-50 p-4 bg-yellow-400 border-l-4 border-yellow-600 text-yellow-900 shadow-lg rounded-r-lg transform translate-x-full transition-transform duration-500 ease-in-out" role="alert">
-            <p class="font-bold">Timeline Alert</p>
-            <p id="timeline-message">Upcoming deadlines are near!</p>
+        <div id="timeline-notification" class="fixed top-24 right-4 z-50 p-4 bg-blue-500 border-l-4 border-blue-700 text-white shadow-lg rounded-lg transform translate-x-full transition-transform duration-500 ease-in-out" role="alert">
+            <p class="font-bold">Timeline Update</p>
+            <p id="timeline-message">Item added to your timeline!</p>
         </div>
 
         <div class="hero-section mb-8">
@@ -184,6 +192,9 @@
         
     </div>
 
+    <!-- Confetti Animation Container -->
+    <div id="congrats-animation" class="fixed inset-0 pointer-events-none z-[1000] overflow-hidden"></div>
+
     <!-- AI Chatbot UI -->
     <div id="chatbot-fab"><i data-feather="message-square"></i></div>
     <div id="chatbot-window" class="hidden transform scale-0 opacity-0">
@@ -203,10 +214,8 @@
         // --- Core Application Logic ---
 
         // --- IMPORTANT SETUP ---
-        // For the AI Chatbot to work, you need a Google Gemini API key.
-        // 1. Get your free key from Google AI Studio: https://aistudio.google.com/app/apikey
-        // 2. Paste your key into the empty string below.
-        const GEMINI_API_KEY = "AIzaSyApeoY72t9cW5HjHEHHBzjKLNNezrtz2N0"; // <-- PASTE YOUR API KEY HERE
+        // The API key is handled securely by the environment and is no longer needed here.
+        const GEMINI_API_KEY = "";
         
         // State Management
         let currentView = 'home';
@@ -252,9 +261,9 @@
             Object.values(navButtons).forEach(b => b.classList.remove('active'));
             navButtons[view].classList.add('active');
             if (view !== 'home') {
-                 window.scrollTo({ top: document.querySelector('.hero-section').offsetHeight, behavior: 'smooth' });
+                window.scrollTo({ top: document.querySelector('.hero-section').offsetHeight, behavior: 'smooth' });
             } else {
-                 window.scrollTo({ top: 0, behavior: 'smooth' });
+                window.scrollTo({ top: 0, behavior: 'smooth' });
             }
         }
 
@@ -319,15 +328,85 @@
             }
         }
 
-        function addToApplications(collegeId) { const college = collegeData.find(c => c.id === collegeId); if (college && !myApplications.find(app => app.id === collegeId)) { const deadline = new Date(); deadline.setDate(deadline.getDate() + 60); myApplications.push({ id: college.id, name: college.name, deadline: deadline.toISOString().split('T')[0] }); saveState(); renderMyApplications(); } }
-        function removeApplication(collegeId) { myApplications = myApplications.filter(app => app.id !== collegeId); saveState(); renderMyApplications(); }
+        function addToApplications(collegeId) {
+            const college = collegeData.find(c => c.id === collegeId);
+            if (college && !myApplications.find(app => app.id === collegeId)) {
+                const deadline = new Date();
+                deadline.setDate(deadline.getDate() + 60);
+                myApplications.push({
+                    id: college.id,
+                    name: college.name,
+                    deadline: deadline.toISOString().split('T')[0],
+                    status: 'Not Started'
+                });
+                saveState();
+                renderMyApplications();
+                const notification = document.getElementById('timeline-notification');
+                document.getElementById('timeline-message').innerText = `${college.name} added to your timeline.`;
+                notification.classList.remove('translate-x-full');
+                setTimeout(() => notification.classList.add('translate-x-full'), 3000);
+            }
+        }
+
+        function removeApplication(collegeId) {
+            myApplications = myApplications.filter(app => app.id !== collegeId);
+            saveState();
+            renderMyApplications();
+        }
+
+        function updateApplicationStatus(collegeId, newStatus) {
+            const appIndex = myApplications.findIndex(app => app.id === collegeId);
+            if (appIndex !== -1) {
+                myApplications[appIndex].status = newStatus;
+                saveState();
+                renderMyApplications();
+                if (newStatus === 'Accepted') {
+                    showCongratsAnimation();
+                }
+            }
+        }
 
         function renderMyApplications() {
             if (myApplications.length === 0) {
                 applicationsList.innerHTML = '<p class="text-gray-500 text-center py-4">Add colleges to your timeline to track them here.</p>';
                 return;
             }
-            applicationsList.innerHTML = myApplications.map(app => `<div class="p-4 bg-gray-50 rounded-lg flex justify-between items-center"><div><p class="font-bold">${app.name}</p><p class="text-sm text-gray-600">Deadline: ${app.deadline}</p></div><button class="text-red-500 hover:text-red-700 font-semibold p-2" onclick="removeApplication(${app.id})"><i data-feather="trash-2"></i></button></div>`).join('');
+            
+            const statusOptions = ['Not Started', 'In Progress', 'Submitted', 'Accepted'];
+            const statusColors = {
+                'Not Started': 'bg-gray-400',
+                'In Progress': 'bg-yellow-500',
+                'Submitted': 'bg-blue-500',
+                'Accepted': 'bg-green-500'
+            };
+             const statusBorderColors = {
+                'Not Started': 'border-gray-400',
+                'In Progress': 'border-yellow-500',
+                'Submitted': 'border-blue-500',
+                'Accepted': 'border-green-500'
+            };
+
+            applicationsList.innerHTML = myApplications
+                .sort((a, b) => new Date(a.deadline) - new Date(b.deadline))
+                .map(app => `
+                <div class="p-4 bg-white rounded-lg flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-l-4 ${statusBorderColors[app.status]} shadow-sm">
+                    <div class="flex-grow">
+                        <div class="flex items-center gap-3">
+                            <span class="w-3 h-3 rounded-full ${statusColors[app.status]}"></span>
+                            <p class="font-bold text-gray-800">${app.name}</p>
+                        </div>
+                        <p class="text-sm text-gray-600 ml-6">Deadline: ${app.deadline}</p>
+                    </div>
+                    <div class="flex items-center gap-4 w-full sm:w-auto">
+                        <select class="p-2 border border-gray-300 rounded-lg shadow-sm w-full sm:w-auto bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none" onchange="updateApplicationStatus(${app.id}, this.value)">
+                            ${statusOptions.map(option => `<option value="${option}" ${app.status === option ? 'selected' : ''}>${option}</option>`).join('')}
+                        </select>
+                        <button class="text-red-500 hover:text-red-700 font-semibold p-2 rounded-full hover:bg-red-100" onclick="removeApplication(${app.id})">
+                            <i data-feather="trash-2"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
             feather.replace();
         }
         
@@ -390,7 +469,23 @@
         
         function requestMentorship(name, email) { window.location.href = `mailto:${email}?subject=Mentorship Request from J&K Career Navigator&body=Hello ${name},%0D%0A%0D%0AI found your profile on the J&K Career Navigator app and I am very inspired by your work. I would be grateful for the opportunity to connect and learn from your experience.%0D%0A%0D%0AThank you,%0D%0A[Your Name]`; }
 
-        function parseMarkdown(text) { let sanitizedText = text.replace(/</g, "&lt;").replace(/>/g, "&gt;"); sanitizedText = sanitizedText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>'); return sanitizedText; }
+        function parseMarkdown(text) {
+            let sanitizedText = text
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;");
+
+            // Bold: **text** -> <strong>text</strong>
+            sanitizedText = sanitizedText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+            // Newlines to <br> for proper line breaks
+            sanitizedText = sanitizedText.replace(/\n/g, '<br>');
+
+            // Handle basic list markers for readability
+            sanitizedText = sanitizedText.replace(/<br>\* /g, '<br>• ');
+            sanitizedText = sanitizedText.replace(/<br>\- /g, '<br>• ');
+
+            return sanitizedText;
+        }
         
         function addChatMessage(message, sender, isLoading = false) {
             const messageElement = document.createElement('div');
@@ -412,14 +507,11 @@
             chatInput.value = "";
             addChatMessage('', 'bot', true);
 
-            // Check for API key before making the call
-            if (!GEMINI_API_KEY) {
-                const loadingIndicator = document.getElementById('loading-indicator');
-                if(loadingIndicator) loadingIndicator.remove();
-                addChatMessage("AI Chatbot is not configured. The developer needs to add a Gemini API key to the code.", 'bot');
-                return;
-            }
-
+            // The 'if (!GEMINI_API_KEY)' check is technically true now,
+            // but the environment injects the key during the fetch call.
+            // A more robust check might be needed for a different environment,
+            // but this will work here.
+            
             try {
                 const botResponse = await getGeminiResponse(userInput);
                 const loadingIndicator = document.getElementById('loading-indicator');
@@ -435,13 +527,40 @@
 
         async function getGeminiResponse(prompt) {
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${GEMINI_API_KEY}`;
-            const systemPrompt = "You are an expert career counselor for students in Jammu & Kashmir. Your tone is encouraging and helpful. You have access to the app's data on colleges, exams, and career paths. Keep your answers concise and focused on the user's question. Use markdown for bolding important terms.";
-            const payload = { systemInstruction: { parts: [{ text: systemPrompt }] }, contents: [{ parts: [{ text: prompt }] }], };
-            const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+            const systemPrompt = "You are an expert career counselor for students in Jammu & Kashmir. Your tone is encouraging and helpful. You have access to the app's data on colleges, exams, and career paths. Keep your answers concise and focused on the user's question. Use markdown for bolding important terms, and use bullet points for lists where appropriate.";
+            const payload = { 
+                systemInstruction: { parts: [{ text: systemPrompt }] }, 
+                contents: [{ parts: [{ text: prompt }] }], 
+            };
+            const response = await fetch(apiUrl, { 
+                method: 'POST', 
+                headers: { 'Content-Type': 'application/json' }, 
+                body: JSON.stringify(payload) 
+            });
             if (!response.ok) throw new Error(`API request failed with status ${response.status}`);
             const result = await response.json();
-            const candidate = result.candidates?.[0];
-            if (candidate && candidate.content?.parts?.[0]?.text) return candidate.content.parts[0].text;
+            
+            // More robust response handling
+            if (!result.candidates || result.candidates.length === 0) {
+                if (result.promptFeedback && result.promptFeedback.blockReason) {
+                    console.error("Gemini API request was blocked. Reason:", result.promptFeedback.blockReason);
+                    return "I'm sorry, I can't respond to that request. Please try asking something else.";
+                }
+                return "I'm having trouble generating a response right now. Please try again in a moment.";
+            }
+
+            const candidate = result.candidates[0];
+            
+            // Check for other finish reasons like safety
+            if (candidate.finishReason && candidate.finishReason !== 'STOP') {
+                 console.warn("Gemini API finished with reason:", candidate.finishReason);
+                 return "I couldn't generate a full response. Please try rephrasing your question.";
+            }
+
+            if (candidate.content?.parts?.[0]?.text) {
+                return candidate.content.parts[0].text;
+            }
+
             return "I'm not sure how to respond to that. Could you ask in a different way?";
         }
         
@@ -475,6 +594,34 @@
         function createCareerMapHTML(path) { return ` <details class="bg-white rounded-xl shadow-sm"> <summary class="text-lg text-gray-800">${path.degree} <span class="text-blue-600 font-semibold">-> ${path.title}</span></summary> <div class="p-4 border-t"> ${path.steps.map(step => ` <div class="mb-4"> <h4 class="font-semibold text-md">${step.name}</h4> <p class="text-sm text-gray-600">${step.details}</p> <p class="text-sm mt-1"><strong>Skills:</strong> ${step.skills.join(', ')}</p> <p class="text-sm mt-1"><strong>Recommended Courses:</strong> ${step.courses.map(c => `<a href="${c.url}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">${c.name}</a>`).join(', ')}</p> <p class="text-sm mt-1"><strong>Scholarships:</strong> ${step.scholarships.length > 0 ? step.scholarships.map(s => `<a href="${s.url}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">${s.name}</a>`).join(', ') : 'N/A'}</p> </div> `).join('')} </div> </details> `; }
         function renderColleges(filter = 'All Locations') { const list = document.getElementById('college-list'); if (!list) return; let colleges = [...collegeData]; if (filter !== 'All Locations') { colleges = colleges.filter(c => c.location === filter); } if (userLocation) { colleges.forEach(c => c.distance = getDistance(userLocation.lat, userLocation.lon, c.lat, c.lon)); colleges.sort((a, b) => a.distance - b.distance); } list.innerHTML = colleges.map(createCollegeCardHTML).join(''); feather.replace(); }
         function renderComparison() { const content = document.getElementById('modal-compare-content'); if (collegesToCompare.size < 2) { content.innerHTML = '<p class="text-center sm:col-span-2">Please select at least two colleges to compare.</p>'; showModal('compare-modal'); return; } let compareHTML = ''; collegesToCompare.forEach(id => { const college = collegeData.find(c => c.id === id); if (college) { compareHTML += ` <div class="border p-4 rounded-lg"> <h4 class="font-bold text-lg">${college.name}</h4> <ul class="mt-2 space-y-1 text-sm"> <li><strong>Location:</strong> ${college.location}</li> <li><strong>Fees:</strong> ${college.fees}/year</li> <li><strong>Courses:</strong> ${college.courses.join(', ')}</li> <li><strong>Facilities:</strong> ${college.facilities.join(', ')}</li> </ul> </div> `; } }); content.innerHTML = compareHTML; showModal('compare-modal'); }
+
+        function showCongratsAnimation() {
+            const container = document.getElementById('congrats-animation');
+            if (!container) return;
+            container.innerHTML = ''; // Clear previous confetti
+
+            const confettiCount = 150;
+            const colors = ['#f59e0b', '#ef4444', '#10b981', '#3b82f6', '#8b5cf6', '#ec4899'];
+
+            for (let i = 0; i < confettiCount; i++) {
+                const confetti = document.createElement('div');
+                confetti.style.position = 'absolute';
+                confetti.style.width = `${Math.random() * 12 + 6}px`;
+                confetti.style.height = `${Math.random() * 20 + 10}px`;
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.top = '-50px';
+                confetti.style.left = `${Math.random() * 100}vw`;
+                confetti.style.opacity = '1';
+                const duration = Math.random() * 3 + 2.5; // 2.5 to 5.5 seconds
+                confetti.style.animation = `drop ${duration}s ease-in-out forwards`;
+                confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+                container.appendChild(confetti);
+            }
+
+            setTimeout(() => {
+                container.innerHTML = '';
+            }, 6000); // Clear after the longest animation
+        }
 
         function getUserLocation() {
             const btn = document.getElementById('get-location-btn');
@@ -518,4 +665,5 @@
     </script>
 </body>
 </html>
+
 
