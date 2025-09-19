@@ -167,6 +167,7 @@
             <div id="section-exams" class="card hidden"></div>
         </div>
 
+        <!-- Modals -->
         <div id="compare-modal" class="modal fixed inset-0 flex items-center justify-center p-4 z-50 hidden">
             <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-4xl max-h-full overflow-y-auto">
                 <div class="flex justify-between items-center mb-6">
@@ -189,8 +190,10 @@
         
     </div>
 
+    <!-- Confetti Animation Container -->
     <div id="congrats-animation" class="fixed inset-0 pointer-events-none z-[1000] overflow-hidden"></div>
 
+    <!-- AI Chatbot UI -->
     <div id="chatbot-fab"><i data-feather="message-square"></i></div>
     <div id="chatbot-window" class="hidden transform scale-0 opacity-0">
         <div class="p-4 bg-gradient-to-r from-blue-700 to-blue-600 text-white rounded-t-2xl shadow-md">
@@ -205,6 +208,7 @@
     </div>
 
     <script>
+        // --- Core Application Logic ---
         let currentView = 'home';
         let currentQuestionIndex = 0;
         let quizAnswers = {};
@@ -212,14 +216,15 @@
         let collegesToCompare = new Set();
         let myApplications = [];
         
+        // --- Data Definitions ---
         const quizData = [ { question: "When faced with a complex problem, what's your first instinct?", options: [ { text: "Break it down into smaller parts and analyze the details.", category: "Technical" }, { text: "Brainstorm unconventional ideas and look for a creative angle.", category: "Creative" }, { text: "Discuss it with others to get different perspectives.", category: "Social" }, { text: "Take charge, make a plan, and delegate tasks to solve it.", category: "Entrepreneurial" } ] }, { question: "What kind of activity sounds most appealing for a weekend project?", options: [ { text: "Building a small robot or coding a simple app.", category: "Technical" }, { text: "Painting, writing a story, or designing a poster.", category: "Creative" }, { text: "Volunteering for a local cause or organizing a community event.", category: "Social" }, { text: "Developing a business plan for a new product idea.", category: "Entrepreneurial" } ] }, { question: "Which high school subject area did you enjoy the most?", options: [ { text: "Physics, Mathematics, and Computer Science.", category: "Technical" }, { text: "Literature, Art, and Music.", category: "Creative" }, { text: "History, Psychology, and Sociology.", category: "Social" }, { text: "Economics, Business Studies, and Accounting.", category: "Entrepreneurial" } ] }, { question: "How do you prefer to learn new things?", options: [ { text: "Through hands-on experiments and structured tutorials.", category: "Technical" }, { text: "By exploring, imagining, and expressing myself.", category: "Creative" }, { text: "By listening to others' stories and engaging in group discussions.", category: "Social" }, { text: "By taking risks, trying things out, and learning from my mistakes.", category: "Entrepreneurial" } ] } ];
         const resultDescriptions = { "Technical": "You have a logical and analytical mind. You enjoy understanding how things work and solving complex problems with data and technology. Careers in engineering, IT, science, and data analysis would be a great fit.", "Creative": "You are imaginative and expressive, with a knack for original ideas. You thrive in environments where you can create, design, and communicate in unique ways. Fields like graphic design, writing, arts, and media are perfect for you.", "Social": "You are empathetic and community-oriented. You find fulfillment in helping others, understanding human behavior, and making a positive impact on society. Consider careers in social work, teaching, healthcare, or public service.", "Entrepreneurial": "You are a natural leader and visionary, driven to innovate and build. You excel at spotting opportunities, managing projects, and leading teams. A path in business, management, or starting your own venture would suit you well." };
         const careerPathData = [ { category: "Technical", degree: "B.Tech / B.E.", title: "Software Engineer", steps: [{ name: "Foundation in Coding", details: "Learn core programming languages.", skills: ["Java", "Python", "Data Structures"], courses: [{name: "CS50 on edX", url:"https://www.edx.org/course/introduction-computer-science-harvardx-cs50x"}, {name: "FreeCodeCamp", url:"https://www.freecodecamp.org/"}], scholarships: [{name: "Google Scholarships", url: "https://buildyourfuture.withgoogle.com/scholarships"}] }] }, { category: "Creative", degree: "B.A. Fine Arts", title: "Graphic Designer", steps: [{ name: "Design Fundamentals", details: "Master principles of visual design.", skills: ["Adobe Photoshop", "Illustrator"], courses: [{name: "Canva Design School", url:"https://www.canva.com/designschool/"}, {name:"Coursera UI/UX", url:"https://www.coursera.org/professional-certificates/google-ux-design"}], scholarships: [{name: "Adobe Design Scholarships", url:"https://www.adobe.com/scholarships"}] }] }, { category: "Social", degree: "B.S.W. (Bachelor of Social Work)", title: "Social Worker", steps: [{ name: "Community Engagement", details: "Gain experience through volunteering and internships.", skills: ["Empathy", "Counseling"], courses: [{name: "Intro to Social Work on Coursera", url:"https://www.coursera.org/learn/social-work"}], scholarships: [{name: "Tata Trust Scholarships", url:"https://www.tatatrusts.org/our-work/education/scholarships"}] }] }, { category: "Entrepreneurial", degree: "BBA", title: "Startup Founder", steps: [{ name: "Business Acumen", details: "Learn about marketing, finance, and operations.", skills: ["Business Planning", "Networking"], courses: [{name: "Y Combinator Startup School", url:"https://www.ycombinator.com/school"}], scholarships: [{name: "JKEDI Grants", url:"http://jkedi.org/"}] }] }, { category: "Technical", degree: "B.Sc. Agriculture", title: "Agricultural Scientist", steps: [{ name: "Undergraduate Degree", details: "Complete B.Sc. Agriculture or related degree.", skills: ["Soil Science", "Plant Biology"], courses: [{name: "Intro to Agronomy on Coursera", url:"https://www.coursera.org/courses?query=agronomy"}], scholarships: [{name: "ICAR Scholarships", url:"https://icar.org.in/scholarships"}] }] }, { category: "Entrepreneurial", degree: "B.Voc / BBA", title: "Digital Marketing Specialist", steps: [{ name: "Basics of Marketing", details: "Learn marketing fundamentals and digital tools.", skills: ["SEO", "Content Creation"], courses: [{name: "Google Digital Garage", url:"https://learndigital.withgoogle.com/digitalgarage/"}, {name: "HubSpot Academy", url:"https://academy.hubspot.com/"}], scholarships: [] }] }, { category: "Social", degree: "B.A. Political Science / Public Admin", title: "Civil Servant (KAS/IAS)", steps: [{ name: "Build Foundation", details: "Focus on NCERTs and standard books for core subjects.", skills: ["Critical Analysis", "Writing", "General Knowledge"], courses: [{name: "Vision IAS", url:"https://visionias.in/"}, {name:"Unacademy", url:"https://unacademy.com/"}], scholarships: [{name: "Govt. Coaching Schemes", url:"https://socialjustice.gov.in/schemes/36"}] }] }, { category: "Technical", degree: "MBBS (after 10+2 Science)", title: "Doctor", steps: [{ name: "NEET Preparation", details: "Prepare and qualify the National Eligibility cum Entrance Test (NEET-UG).", skills: ["Biology", "Chemistry", "Physics", "Problem Solving"], courses: [{name: "Aakash Institute", url:"https://www.aakash.ac.in/"}, {name:"Allen Career Institute", url:"https://www.allen.ac.in/"}], scholarships: [{name: "National Scholarship Portal", url:"https://scholarships.gov.in/"}] }] }, ];
         const spotlightData = [ { name: "Mir Muneeb", bio: "Software engineer at a leading tech company, alumnus of NIT Srinagar.", category: "Technical", contactEmail: "mentor.muneeb@example.com" }, { name: "Sana Imtiyaz", bio: "Successful home-baker and founder of 'Kashir Kravings', a local favorite.", category: "Entrepreneurial", contactEmail: "mentor.sana@example.com" }, { name: "Zahoor Ahmad", bio: "Social worker dedicated to improving rural education in the valley.", category: "Social", contactEmail: "mentor.zahoor@example.com" }, { name: "Aaliya Mir", bio: "Award-winning graphic designer known for her unique blend of modern and traditional art.", category: "Creative", contactEmail: "mentor.aaliya@example.com" } ];
-        const timelineEvents = [ { id: 1, name: "SKUAST Admission Application Deadline", date: "2025-10-15" }, { id: 2, name: "JKEDI Startup Training Registration Opens", date: "2025-11-05" }, { id: 3, name: "National Scholarship Portal Closes", date: "2025-12-01" }, ];
         const collegeData = [ { id: 1, name: "University of Jammu", location: "Jammu", fees: "₹30,000", courses: ["B.Sc.", "B.A.", "B.Tech.", "BBA"], facilities: ["Library", "Hostel", "Labs", "Wi-Fi"], lat: 32.7357, lon: 74.8698, category: ["Technical", "Social", "Creative"], image: "https://placehold.co/600x400/1d4ed8/ffffff?text=UoJ", website: "https://jammuuniversity.ac.in/", description: "A premier university in the region offering a wide range of courses and research opportunities." }, { id: 6, name: "IIT Jammu", location: "Jammu", fees: "₹2,15,000", courses: ["B.Tech.", "M.Tech."], facilities: ["Advanced Labs", "Hostel", "Sports Complex"], lat: 32.6885, lon: 74.8835, category: ["Technical"], image: "https://placehold.co/600x400/1d4ed8/ffffff?text=IIT+Jammu", website: "https://iitjammu.ac.in/", description: "One of the new IITs, focused on providing top-tier technical education and research." }, { id: 7, name: "IIM Jammu", location: "Jammu", fees: "₹17,00,000", courses: ["MBA", "PGDM"], facilities: ["Modern Campus", "Library", "Hostel"], lat: 32.7766, lon: 74.8726, category: ["Entrepreneurial"], image: "https://placehold.co/600x400/1d4ed8/ffffff?text=IIM+Jammu", website: "https://www.iimj.ac.in/", description: "A top business school fostering leadership and entrepreneurial skills." }, { id: 8, name: "Govt. Medical College, Jammu", location: "Jammu", fees: "₹50,000", courses: ["MBBS", "MD"], facilities: ["Hospital", "Labs", "Hostel"], lat: 32.7169, lon: 74.8649, category: ["Technical", "Social"], image: "https://placehold.co/600x400/1d4ed8/ffffff?text=GMC+Jammu", website: "http://gmcjammu.nic.in/", description: "A leading medical institution with a long history of providing quality healthcare education." }, { id: 9, name: "GCET, Jammu", location: "Jammu", fees: "₹45,000", courses: ["B.E.", "B.Tech."], facilities: ["Workshops", "Library", "Labs"], lat: 32.7876, lon: 74.8605, category: ["Technical"], image: "https://placehold.co/600x400/1d4ed8/ffffff?text=GCET+Jammu", website: "https://www.gcetjammu.org.in/", description: "Government College of Engineering & Technology offering various engineering disciplines." }, { id: 10, name: "SMVDU, Katra", location: "Katra", fees: "₹1,80,000", courses: ["B.Tech.", "MBA", "M.Sc."], facilities: ["Residential Campus", "Labs", "Library"], lat: 32.9348, lon: 74.9511, category: ["Technical", "Entrepreneurial"], image: "https://placehold.co/600x400/1d4ed8/ffffff?text=SMVDU", website: "https://www.smvdu.ac.in/", description: "Shri Mata Vaishno Devi University, a technical university known for its beautiful campus." }, { id: 11, name: "BGSBU, Rajouri", location: "Rajouri", fees: "₹40,000", courses: ["B.Tech.", "MCA", "MBA"], facilities: ["Hostel", "Library", "Transport"], lat: 33.4862, lon: 74.3168, category: ["Technical", "Social"], image: "https://placehold.co/600x400/1d4ed8/ffffff?text=BGSBU", website: "http://www.bgsbu.ac.in/", description: "Baba Ghulam Shah Badshah University, offering a range of technical and social science courses." }, { id: 12, name: "GDC, Kathua", location: "Kathua", fees: "₹12,000", courses: ["B.A.", "B.Sc.", "B.Com."], facilities: ["Library", "Sports Ground"], lat: 32.3725, lon: 75.5204, category: ["Social", "Creative"], image: "https://placehold.co/600x400/1d4ed8/ffffff?text=GDC+Kathua", website: "https://www.gdckathua.com/", description: "A key government degree college in the Kathua district." }, { id: 13, name: "MIET Jammu", location: "Jammu", fees: "₹90,000", courses: ["B.E.", "MBA", "MCA"], facilities: ["Labs", "Library", "Canteen"], lat: 32.6582, lon: 74.9123, category: ["Technical", "Entrepreneurial"], image: "https://placehold.co/600x400/1d4ed8/ffffff?text=MIET", website: "https://www.mietjmu.in/", description: "Model Institute of Engineering and Technology, a well-known private engineering college." }, { id: 14, name: "Cluster University of Jammu", location: "Jammu", fees: "₹20,000", courses: ["Integrated M.A.", "M.Sc."], facilities: ["Multiple Campuses", "Labs"], lat: 32.7303, lon: 74.8708, category: ["Social", "Creative"], image: "https://placehold.co/600x400/1d4ed8/ffffff?text=CLUJ", website: "https://www.clujammu.in/", description: "Comprising five prestigious colleges of Jammu city." }, { id: 15, name: "Central University of Jammu", location: "Jammu", fees: "₹25,000", courses: ["M.A.", "M.Sc.", "Ph.D."], facilities: ["Campus", "Library", "Hostel"], lat: 32.6288, lon: 74.9989, category: ["Technical", "Social"], image: "https://placehold.co/600x400/1d4ed8/ffffff?text=CUJ", website: "https://cujammu.ac.in/", description: "A central university with a focus on research and postgraduate studies." }, { id: 4, name: "GCW, M.A. Road", location: "Srinagar", fees: "₹12,000", courses: ["B.A.", "B.Voc.", "B.A. Fine Arts"], facilities: ["Auditorium", "Library"], lat: 34.0837, lon: 74.7972, category: ["Creative", "Social"], image: "https://placehold.co/600x400/1d4ed8/ffffff?text=GCW", website: "https://www.gcwmaroad.edu.in/", description: "Govt. College for Women, a leading institution for women's education in Srinagar." }, { id: 16, name: "University of Kashmir", location: "Srinagar", fees: "₹25,000", courses: ["M.A.", "M.Sc.", "LL.B."], facilities: ["Campus", "Library", "Naseem Bagh"], lat: 34.1206, lon: 74.8322, category: ["Social", "Creative", "Technical"], image: "https://placehold.co/600x400/1d4ed8/ffffff?text=UoK", website: "https://www.kashmiruniversity.net/", description: "The largest university in the Kashmir valley, located by the scenic Dal Lake." }, { id: 17, name: "NIT Srinagar", location: "Srinagar", fees: "₹1,25,000", courses: ["B.Tech.", "M.Tech."], facilities: ["Labs", "Hostel", "Dal Lake View"], lat: 34.1211, lon: 74.8340, category: ["Technical"], image: "https://placehold.co/600x400/1d4ed8/ffffff?text=NIT+Srinagar", website: "https://nitsri.ac.in/", description: "National Institute of Technology, an institute of national importance for engineering." }, { id: 18, name: "SKIMS Medical College", location: "Srinagar", fees: "₹60,000", courses: ["MBBS"], facilities: ["Hospital", "Advanced Labs"], lat: 34.1504, lon: 74.8030, category: ["Technical", "Social"], image: "https://placehold.co/600x400/1d4ed8/ffffff?text=SKIMS", website: "https://www.skims.ac.in/", description: "Sher-i-Kashmir Institute of Medical Sciences, a premier medical college and hospital." }, { id: 19, name: "SKUAST-Kashmir", location: "Srinagar", fees: "₹35,000", courses: ["B.Sc. Agriculture", "B.V.Sc."], facilities: ["Farms", "Labs", "Hostel"], lat: 34.1446, lon: 74.8306, category: ["Technical"], image: "https://placehold.co/600x400/1d4ed8/ffffff?text=SKUAST", website: "https://www.skuastkashmir.ac.in/", description: "Sher-e-Kashmir University of Agricultural Sciences and Technology of Kashmir." }, { id: 2, name: "GDC, Baramulla", location: "Baramulla", fees: "₹15,000", courses: ["B.Sc.", "B.Com."], facilities: ["Library", "Sports"], lat: 34.2045, lon: 74.3644, category: ["Technical", "Social"], image: "https://placehold.co/600x400/1d4ed8/ffffff?text=GDC+Baramulla", website: "https://gdcbaramulla.edu.in/", description: "Govt. Degree College, Baramulla, an autonomous college known for academic excellence." }, { id: 3, name: "IUST, Awantipora", location: "Awantipora", fees: "₹25,000", courses: ["B.Tech.", "B.Sc.", "MBA"], facilities: ["Research Labs", "Hostels"], lat: 33.8860, lon: 75.0500, category: ["Technical", "Entrepreneurial"], image: "https://placehold.co/600x400/1d4ed8/ffffff?text=IUST", website: "https://www.iust.ac.in/", description: "Islamic University of Science & Technology, offering courses in technology and management." }, { id: 5, name: "GDC Boys, Anantnag", location: "Anantnag", fees: "₹10,000", courses: ["B.A.", "B.Sc."], facilities: ["Laboratories", "Hostel"], lat: 33.7317, lon: 75.1539, category: ["Social"], image: "https://placehold.co/600x400/1d4ed8/ffffff?text=GDC+Anantnag", website: "https://www.gdcboysanantnag.edu.in/", description: "An autonomous degree college in South Kashmir." }, { id: 20, name: "GMC, Anantnag", location: "Anantnag", fees: "₹55,000", courses: ["MBBS"], facilities: ["Hospital", "Labs"], lat: 33.7431, lon: 75.1456, category: ["Technical", "Social"], image: "https://placehold.co/600x400/1d4ed8/ffffff?text=GMC+Anantnag", website: "https://gmcanantnag.net/", description: "A newly established medical college to serve the healthcare needs of South Kashmir." }, { id: 21, name: "GDC, Sopore", location: "Sopore", fees: "₹14,000", courses: ["B.A.", "B.Sc."], facilities: ["Library", "Playground"], lat: 34.2917, lon: 74.4608, category: ["Social"], image: "https://placehold.co/600x400/1d4ed8/ffffff?text=GDC+Sopore", website: "https://gdcsopore.ac.in/", description: "A key degree college in the town of Sopore, known as 'Apple Town'." }, { id: 22, name: "Amar Singh College", location: "Srinagar", fees: "₹18,000", courses: ["B.A.", "B.Sc.", "B.Com."], facilities: ["Heritage Campus", "Library"], lat: 34.0765, lon: 74.8063, category: ["Social", "Creative"], image: "https://placehold.co/600x400/1d4ed8/ffffff?text=AS+College", website: "https://www.amarsinghcollege.ac.in/", description: "A constituent college of Cluster University Srinagar with a historic campus." }, { id: 23, name: "SP College, Srinagar", location: "Srinagar", fees: "₹17,000", courses: ["B.Sc.", "BCA"], facilities: ["Science Labs", "Library"], lat: 34.0740, lon: 74.8078, category: ["Technical"], image: "https://placehold.co/600x400/1d4ed8/ffffff?text=SP+College", website: "https://www.spcollege.edu.in/", description: "Shri Pratap College, renowned for its science programs." }, { id: 24, name: "GDC Boys, Pulwama", location: "Pulwama", fees: "₹11,000", courses: ["B.A.", "B.Sc."], facilities: ["Library", "Labs"], lat: 33.8732, lon: 74.9192, category: ["Social"], image: "https://placehold.co/600x400/1d4ed8/ffffff?text=GDC+Pulwama", website: "https://www.gdcpulwama.edu.in/", description: "Serving the higher education needs of the Pulwama district." }, { id: 25, name: "Central University of Kashmir", location: "Ganderbal", fees: "₹22,000", courses: ["Integrated M.Sc.", "M.A."], facilities: ["New Campus", "Hostel"], lat: 34.2256, lon: 74.6980, category: ["Technical", "Social"], image: "https://placehold.co/600x400/1d4ed8/ffffff?text=CUK", website: "https://www.cukashmir.ac.in/", description: "Located in Ganderbal, focusing on integrated and postgraduate programs." }, { id: 26, name: "Cluster University of Srinagar", location: "Srinagar", fees: "₹21,000", courses: ["Integrated B.A-M.A", "B.Ed."], facilities: ["Constituent Colleges"], lat: 34.0754, lon: 74.8085, category: ["Social", "Creative"], image: "https://placehold.co/600x400/1d4ed8/ffffff?text=CUS", website: "https://www.cusrinagar.edu.in/", description: "Comprising five prestigious colleges of Srinagar city." }, { id: 27, name: "GMC, Baramulla", location: "Baramulla", fees: "₹55,000", courses: ["MBBS"], facilities: ["Associated Hospital", "Labs"], lat: 34.1950, lon: 74.3480, category: ["Technical", "Social"], image: "https://placehold.co/600x400/1d4ed8/ffffff?text=GMC+Baramulla", website: "https://gmcbaramulla.in/", description: "Govt. Medical College, Baramulla, enhancing medical education in North Kashmir." }, { id: 28, name: "ICSC, Srinagar", location: "Srinagar", fees: "₹20,000", courses: ["B.Sc. IT", "BBA", "B.Com."], facilities: ["Labs", "Library"], lat: 34.0926, lon: 74.7981, category: ["Technical", "Entrepreneurial"], image: "https://placehold.co/600x400/1d4ed8/ffffff?text=ICSC", website: "https://www.islamiccollege.edu.in/", description: "Islamic College of Science and Commerce, offering specialized courses in IT and business." }, { id: 29, name: "GDC, Kupwara", location: "Kupwara", fees: "₹10,000", courses: ["B.A.", "B.Sc."], facilities: ["Library", "Computer Lab"], lat: 34.5269, lon: 74.2605, category: ["Social"], image: "https://placehold.co/600x400/1d4ed8/ffffff?text=GDC+Kupwara", website: "https://gdckupwara.edu.in/", description: "A key institution for higher learning in the frontier district of Kupwara." }, { id: 30, name: "GDC, Kulgam", location: "Kulgam", fees: "₹10,000", courses: ["B.A.", "B.Sc."], facilities: ["Library", "Reading Room"], lat: 33.6429, lon: 75.0210, category: ["Social"], image: "https://placehold.co/600x400/1d4ed8/ffffff?text=GDC+Kulgam", website: "https://gdckulgam.edu.in/", description: "Govt. Degree College, Kulgam, catering to students in the Kulgam region." } ];
         const examData = [ { name: "NEET (UG)", fullName: "National Eligibility cum Entrance Test", regDate: "2026-02-01", examDate: "2026-05-05", website: "https://exams.nta.ac.in/NEET/", description: "For admission to undergraduate medical courses." }, { name: "JEE Main", fullName: "Joint Entrance Examination", regDate: "2025-12-01", examDate: "2026-01-24", website: "https://jeemain.nta.ac.in/", description: "For admission to undergraduate engineering programs." }, { name: "CUET", fullName: "Common University Entrance Test", regDate: "2026-02-27", examDate: "2026-05-15", website: "https://cuet.samarth.ac.in/", description: "A single entrance test for admission to Central Universities." }, { name: "JKCET", fullName: "Jammu & Kashmir Common Entrance Test", regDate: "2026-03-15", examDate: "2026-05-28", website: "https://jkbopee.gov.in/", description: "For admission to various professional courses in J&K." }, ];
 
+        // --- Element References ---
         const views = { home: document.getElementById('section-home'), quiz: document.getElementById('section-quiz'), colleges: document.getElementById('section-colleges'), map: document.getElementById('section-map'), exams: document.getElementById('section-exams') };
         const navButtons = { home: document.getElementById('nav-home'), quiz: document.getElementById('nav-quiz'), colleges: document.getElementById('nav-colleges'), map: document.getElementById('nav-map'), exams: document.getElementById('nav-exams') };
         const applicationsList = document.getElementById('applications-list');
@@ -229,6 +234,7 @@
         const chatInput = document.getElementById('chat-input');
         const chatSendBtn = document.getElementById('chat-send-btn');
         
+        // --- Navigation & View Rendering ---
         function navigate(view) {
             currentView = view;
             Object.values(views).forEach(v => {
@@ -280,6 +286,7 @@
             filter.innerHTML = locations.map(loc => `<option value="${loc}">${loc}</option>`).join('');
         }
 
+        // --- State Management ---
         function saveState() { localStorage.setItem('careerNavigatorApps', JSON.stringify(myApplications)); localStorage.setItem('careerNavigatorResult', quizAnswers.result || ''); }
         
         function loadState() {
@@ -298,6 +305,7 @@
             }
         }
 
+        // --- Application Timeline Functions ---
         function addToApplications(collegeId) {
             const college = collegeData.find(c => c.id === collegeId);
             if (college && !myApplications.find(app => app.id === collegeId)) {
@@ -361,44 +369,16 @@
             feather.replace();
         }
         
-        function renderExamHub() {
-            const container = document.getElementById('exam-hub-container');
-            container.innerHTML = examData.map(exam => `<div class="card p-6 border-l-4 border-blue-500"><h3 class="text-2xl font-bold">${exam.name} <span class="text-lg text-gray-500 font-normal">- ${exam.fullName}</span></h3><p class="text-gray-600 mt-2">${exam.description}</p><div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 text-center"><div><p class="text-sm font-semibold text-gray-500">REGISTRATION ENDS</p><div id="countdown-${exam.name}-reg" class="text-2xl font-bold text-red-600"></div></div><div><p class="text-sm font-semibold text-gray-500">EXAM DATE</p><div id="countdown-${exam.name}-exam" class="text-2xl font-bold text-green-600"></div></div></div><div class="mt-4 text-right"><a href="${exam.website}" target="_blank" rel="noopener noreferrer" class="btn-primary text-sm py-2 px-4">Official Website</a></div></div>`).join('');
-            updateCountdowns();
-        }
-
-        function updateCountdowns() { examData.forEach(exam => { updateCountdownFor(`countdown-${exam.name}-reg`, exam.regDate); updateCountdownFor(`countdown-${exam.name}-exam`, exam.examDate); }); }
-        
-        function updateCountdownFor(elementId, targetDate) {
-            const el = document.getElementById(elementId);
-            if (!el) return;
-            const countDownDate = new Date(targetDate).getTime();
-            const intervalId = setInterval(() => {
-                const now = new Date().getTime();
-                const distance = countDownDate - now;
-                if (distance < 0) { el.innerHTML = "EXPIRED"; clearInterval(intervalId); return; }
-                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-                el.innerHTML = `${days}d ${hours}h ${minutes}m`;
-            }, 1000);
-        }
-
-        function showCollegeDetails(collegeId) { const college = collegeData.find(c => c.id === collegeId); if (!college) return; document.getElementById('college-detail-title').innerText = college.name; document.getElementById('modal-college-detail-content').innerHTML = ` <img src="${college.image}" alt="${college.name}" class="w-full h-48 object-cover rounded-lg mb-4"> <p class="text-gray-700 mb-4">${college.description}</p> <h4 class="font-bold text-lg mb-2">Key Details:</h4> <ul class="list-disc list-inside space-y-1 mb-4"> <li><strong>Location:</strong> ${college.location}</li> <li><strong>Approx. Fees:</strong> ${college.fees}/year</li> <li><strong>Key Courses:</strong> ${college.courses.join(', ')}</li> </ul> <a href="${college.website}" target="_blank" rel="noopener noreferrer" class="btn-primary w-full text-center block">Visit Website</a> `; showModal('college-detail-modal'); }
-
-        function createCollegeCardHTML(college) {
-            const distanceText = college.distance ? `<p class="text-sm text-green-600 font-semibold">${college.distance.toFixed(1)} km away</p>` : '';
-            return `<div class="card p-0 flex flex-col justify-between overflow-hidden"><div class="cursor-pointer" onclick="showCollegeDetails(${college.id})"><img src="${college.image}" alt="${college.name}" class="w-full h-40 object-cover"><div class="p-6"><h4 class="text-xl font-bold text-blue-800">${college.name}</h4><p class="text-gray-600 font-semibold">${college.location}</p>${distanceText}</div></div><div class="p-6 pt-0 flex items-center justify-between"><button class="btn-primary btn-secondary text-sm py-2 px-4" onclick="addToApplications(${college.id})">Add to Timeline</button><label class="flex items-center space-x-2 cursor-pointer"><input type="checkbox" class="compare-checkbox" onchange="toggleCompare(${college.id})" ${collegesToCompare.has(college.id) ? 'checked' : ''}><span class="text-sm font-semibold">Compare</span></label></div></div>`;
-        }
-        
-        function requestMentorship(name, email) { window.location.href = `mailto:${email}?subject=Mentorship Request from J&K Career Navigator&body=Hello ${name},%0D%0A%0D%0AI found your profile on the J&K Career Navigator app and I am very inspired by your work. I would be grateful for the opportunity to connect and learn from your experience.%0D%0A%0D%0AThank you,%0D%0A[Your Name]`; }
-
+        // --- Chatbot Functions ---
         function parseMarkdown(text) {
             let sanitizedText = text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-            sanitizedText = sanitizedText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-            sanitizedText = sanitizedText.replace(/\n/g, '<br>');
-            sanitizedText = sanitizedText.replace(/<br>\* /g, '<br>• ');
-            sanitizedText = sanitizedText.replace(/<br>\- /g, '<br>• ');
+            sanitizedText = sanitizedText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>'); // Bold
+            sanitizedText = sanitizedText.replace(/\n/g, '<br>'); // Newlines
+            sanitizedText = sanitizedText.replace(/<br>\* /g, '<br>• '); // List items
+            sanitizedText = sanitizedText.replace(/<br>\- /g, '<br>• '); // List items
+            if (!sanitizedText.startsWith('• ') && sanitizedText.includes('• ')) {
+                 sanitizedText = '• ' + sanitizedText;
+            }
             return sanitizedText;
         }
         
@@ -436,7 +416,6 @@
         }
 
         async function getGeminiResponse(prompt) {
-            // This is the only line changed. It now points to your secure Vercel backend.
             const apiUrl = `https://chat-lemon-ten.vercel.app/api/chat`; 
             
             const payload = { contents: [{ parts: [{ text: prompt }] }], };
@@ -477,6 +456,7 @@
             return "I'm not sure how to respond to that. Could you ask in a different way?";
         }
         
+        // --- Quiz Functions ---
         function startQuiz() { currentQuestionIndex = 0; quizAnswers = {}; document.getElementById('quiz-results-display').classList.add('hidden'); document.getElementById('quiz-container').classList.remove('hidden'); renderQuestion(); }
         function renderQuestion() {
             const quizContainer = document.getElementById('quiz-container');
@@ -487,7 +467,7 @@
                 return;
             }
             const questionData = quizData[currentQuestionIndex];
-            quizContainer.innerHTML = ` <p class="text-xl font-semibold mb-6">${currentQuestionIndex + 1}. ${questionData.question}</p> <div class="grid grid-cols-1 md:grid-cols-2 gap-4"> ${questionData.options.map((opt, index) => ` <div class="quiz-option p-4 text-center" onclick="selectAnswer('${opt.category}')"> ${opt.text} </div> `).join('')} </div> `;
+            quizContainer.innerHTML = ` <p class="text-xl font-semibold mb-6">${currentQuestionIndex + 1}. ${questionData.question}</p> <div class="grid grid-cols-1 md:grid-cols-2 gap-4"> ${questionData.options.map((opt) => ` <div class="quiz-option p-4 text-center" onclick="selectAnswer('${opt.category}')"> ${opt.text} </div> `).join('')} </div> `;
         }
         function selectAnswer(category) { quizAnswers[category] = (quizAnswers[category] || 0) + 1; currentQuestionIndex++; renderQuestion(); }
         function calculateResults() { const resultCategory = Object.keys(quizAnswers).reduce((a, b) => quizAnswers[a] > quizAnswers[b] ? a : b); quizAnswers.result = resultCategory; saveState(); renderResultsPage(resultCategory); }
@@ -503,58 +483,23 @@
             feather.replace();
         }
 
+        // --- Other Rendering Functions ---
         function renderAllCareerMaps() { const container = document.getElementById('career-paths-container'); container.innerHTML = careerPathData.map(createCareerMapHTML).join(''); }
         function createCareerMapHTML(path) { return ` <details class="bg-white rounded-xl shadow-sm"> <summary class="text-lg text-gray-800">${path.degree} <span class="text-blue-600 font-semibold">-> ${path.title}</span></summary> <div class="p-4 border-t"> ${path.steps.map(step => ` <div class="mb-4"> <h4 class="font-semibold text-md">${step.name}</h4> <p class="text-sm text-gray-600">${step.details}</p> <p class="text-sm mt-1"><strong>Skills:</strong> ${step.skills.join(', ')}</p> <p class="text-sm mt-1"><strong>Recommended Courses:</strong> ${step.courses.map(c => `<a href="${c.url}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">${c.name}</a>`).join(', ')}</p> <p class="text-sm mt-1"><strong>Scholarships:</strong> ${step.scholarships.length > 0 ? step.scholarships.map(s => `<a href="${s.url}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">${s.name}</a>`).join(', ') : 'N/A'}</p> </div> `).join('')} </div> </details> `; }
         function renderColleges(filter = 'All Locations') { const list = document.getElementById('college-list'); if (!list) return; let colleges = [...collegeData]; if (filter !== 'All Locations') { colleges = colleges.filter(c => c.location === filter); } if (userLocation) { colleges.forEach(c => c.distance = getDistance(userLocation.lat, userLocation.lon, c.lat, c.lon)); colleges.sort((a, b) => a.distance - b.distance); } list.innerHTML = colleges.map(createCollegeCardHTML).join(''); feather.replace(); }
         function renderComparison() { const content = document.getElementById('modal-compare-content'); if (collegesToCompare.size < 2) { content.innerHTML = '<p class="text-center sm:col-span-2">Please select at least two colleges to compare.</p>'; showModal('compare-modal'); return; } let compareHTML = ''; collegesToCompare.forEach(id => { const college = collegeData.find(c => c.id === id); if (college) { compareHTML += ` <div class="border p-4 rounded-lg"> <h4 class="font-bold text-lg">${college.name}</h4> <ul class="mt-2 space-y-1 text-sm"> <li><strong>Location:</strong> ${college.location}</li> <li><strong>Fees:</strong> ${college.fees}/year</li> <li><strong>Courses:</strong> ${college.courses.join(', ')}</li> <li><strong>Facilities:</strong> ${college.facilities.join(', ')}</li> </ul> </div> `; } }); content.innerHTML = compareHTML; showModal('compare-modal'); }
-
-        function showCongratsAnimation() {
-            const container = document.getElementById('congrats-animation');
-            if (!container) return;
-            container.innerHTML = '';
-            const confettiCount = 150;
-            const colors = ['#f59e0b', '#ef4444', '#10b981', '#3b82f6', '#8b5cf6', '#ec4899'];
-            for (let i = 0; i < confettiCount; i++) {
-                const confetti = document.createElement('div');
-                confetti.style.position = 'absolute';
-                confetti.style.width = `${Math.random() * 12 + 6}px`;
-                confetti.style.height = `${Math.random() * 20 + 10}px`;
-                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-                confetti.style.top = '-50px';
-                confetti.style.left = `${Math.random() * 100}vw`;
-                confetti.style.opacity = '1';
-                const duration = Math.random() * 3 + 2.5;
-                confetti.style.animation = `drop ${duration}s ease-in-out forwards`;
-                confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
-                container.appendChild(confetti);
-            }
-            setTimeout(() => { container.innerHTML = ''; }, 6000);
-        }
-
-        function getUserLocation() {
-            const btn = document.getElementById('get-location-btn');
-            btn.innerText = 'Fetching...';
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(position => {
-                    userLocation = { lat: position.coords.latitude, lon: position.coords.longitude };
-                    document.getElementById('location-filter').value = 'All Locations';
-                    renderColleges('All Locations');
-                    btn.innerText = 'Find Nearby';
-                }, () => { alert("Could not get your location. Please enable location services."); btn.innerText = 'Find Nearby'; });
-            } else { alert("Geolocation is not supported by this browser."); btn.innerText = 'Find Nearby'; }
-        }
+        function renderExamHub() { const container = document.getElementById('exam-hub-container'); container.innerHTML = examData.map(exam => `<div class="card p-6 border-l-4 border-blue-500"><h3 class="text-2xl font-bold">${exam.name} <span class="text-lg text-gray-500 font-normal">- ${exam.fullName}</span></h3><p class="text-gray-600 mt-2">${exam.description}</p><div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 text-center"><div><p class="text-sm font-semibold text-gray-500">REGISTRATION ENDS</p><div id="countdown-${exam.name}-reg" class="text-2xl font-bold text-red-600"></div></div><div><p class="text-sm font-semibold text-gray-500">EXAM DATE</p><div id="countdown-${exam.name}-exam" class="text-2xl font-bold text-green-600"></div></div></div><div class="mt-4 text-right"><a href="${exam.website}" target="_blank" rel="noopener noreferrer" class="btn-primary text-sm py-2 px-4">Official Website</a></div></div>`).join(''); updateCountdowns(); }
+        function updateCountdowns() { examData.forEach(exam => { updateCountdownFor(`countdown-${exam.name}-reg`, exam.regDate); updateCountdownFor(`countdown-${exam.name}-exam`, exam.examDate); }); }
+        
+        // --- Utility Functions ---
+        function getUserLocation() { const btn = document.getElementById('get-location-btn'); btn.innerText = 'Fetching...'; if (navigator.geolocation) { navigator.geolocation.getCurrentPosition(position => { userLocation = { lat: position.coords.latitude, lon: position.coords.longitude }; document.getElementById('location-filter').value = 'All Locations'; renderColleges('All Locations'); btn.innerText = 'Find Nearby'; }, () => { alert("Could not get your location. Please enable location services."); btn.innerText = 'Find Nearby'; }); } else { alert("Geolocation is not supported by this browser."); btn.innerText = 'Find Nearby'; } }
         function getDistance(lat1, lon1, lat2, lon2) { const R = 6371; const dLat = (lat2 - lat1) * Math.PI / 180; const dLon = (lon2 - lon1) * Math.PI / 180; const a = 0.5 - Math.cos(dLat)/2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * (1 - Math.cos(dLon)) / 2; return R * 2 * Math.asin(Math.sqrt(a)); }
-        function toggleCompare(id) {
-            const checkbox = event.target;
-            if (checkbox.checked) { collegesToCompare.add(id); } else { collegesToCompare.delete(id); }
-            const bar = document.getElementById('compare-colleges-bar');
-            const btn = document.getElementById('compare-colleges-btn');
-            if (bar && btn) { bar.classList.toggle('hidden', collegesToCompare.size === 0); btn.innerText = `Compare Selected (${collegesToCompare.size})`; }
-        }
-        function checkTimeline() { const now = new Date(); const upcoming = timelineEvents.find(event => { const eventDate = new Date(event.date); const diffDays = (eventDate - now) / (1000 * 60 * 60 * 24); return diffDays > 0 && diffDays <= 15; }); if (upcoming) { document.getElementById('timeline-message').innerText = `${upcoming.name} deadline is approaching!`; const notification = document.getElementById('timeline-notification'); notification.classList.remove('translate-x-full'); setTimeout(() => notification.classList.add('translate-x-full'), 5000); } }
+        function toggleCompare(id) { const checkbox = event.target; if (checkbox.checked) { collegesToCompare.add(id); } else { collegesToCompare.delete(id); } const bar = document.getElementById('compare-colleges-bar'); const btn = document.getElementById('compare-colleges-btn'); if (bar && btn) { bar.classList.toggle('hidden', collegesToCompare.size === 0); btn.innerText = `Compare Selected (${collegesToCompare.size})`; } }
         function showModal(id) { document.getElementById(id).classList.remove('hidden'); }
         function hideModal(id) { document.getElementById(id).classList.add('hidden'); }
-        
+        function showCongratsAnimation() { const container = document.getElementById('congrats-animation'); if (!container) return; container.innerHTML = ''; const confettiCount = 150; const colors = ['#f59e0b', '#ef4444', '#10b981', '#3b82f6', '#8b5cf6', '#ec4899']; for (let i = 0; i < confettiCount; i++) { const confetti = document.createElement('div'); confetti.style.position = 'absolute'; confetti.style.width = `${Math.random() * 12 + 6}px`; confetti.style.height = `${Math.random() * 20 + 10}px`; confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)]; confetti.style.top = '-50px'; confetti.style.left = `${Math.random() * 100}vw`; confetti.style.opacity = '1'; const duration = Math.random() * 3 + 2.5; confetti.style.animation = `drop ${duration}s ease-in-out forwards`; confetti.style.transform = `rotate(${Math.random() * 360}deg)`; container.appendChild(confetti); } setTimeout(() => { container.innerHTML = ''; }, 6000); }
+
+        // --- Event Listeners & Initialization ---
         window.addEventListener('DOMContentLoaded', () => {
             feather.replace();
             navButtons.home.addEventListener('click', () => navigate('home'));
@@ -568,7 +513,6 @@
             chatInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleChatMessage(); });
             addChatMessage("Welcome! Ask me about colleges, exams, or career paths.", "bot");
             loadState();
-            checkTimeline();
         });
     </script>
 </body>
