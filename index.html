@@ -20,6 +20,11 @@
             border-radius: 1.5rem;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             padding: 2rem;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
         }
         .btn-primary {
             background-color: #1d4ed8;
@@ -27,24 +32,43 @@
             font-weight: 600;
             padding: 0.75rem 1.5rem;
             border-radius: 0.75rem;
-            transition: background-color 0.2s;
+            transition: background-color 0.2s, transform 0.2s;
         }
         .btn-primary:hover {
             background-color: #1e40af;
+            transform: scale(1.05);
+        }
+        .btn-secondary {
+            background-color: #e5e7eb;
+            color: #1f2937;
+        }
+        .btn-secondary:hover {
+            background-color: #d1d5db;
+        }
+        .nav-button.active {
+            background-color: #1d4ed8;
+            color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         .quiz-option {
             background-color: #f9fafb;
             border: 2px solid #e5e7eb;
             border-radius: 0.75rem;
             cursor: pointer;
-            transition: background-color 0.2s, border-color 0.2s;
+            transition: background-color 0.2s, border-color 0.2s, transform 0.2s;
+        }
+        .quiz-option:hover {
+            transform: translateY(-3px);
+            border-color: #93c5fd;
         }
         .quiz-option.selected {
-            background-color: #d1e5f8;
+            background-color: #dbeafe;
             border-color: #3b82f6;
+            font-weight: 600;
         }
         .modal {
             background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
         }
         /* Custom scrollbar for better look */
         .overflow-y-auto::-webkit-scrollbar {
@@ -52,6 +76,7 @@
         }
         .overflow-y-auto::-webkit-scrollbar-track {
             background: #e5e7eb;
+            border-radius: 4px;
         }
         .overflow-y-auto::-webkit-scrollbar-thumb {
             background-color: #9ca3af;
@@ -61,12 +86,24 @@
             list-style: none;
             cursor: pointer;
             font-weight: 600;
+            padding: 1rem;
+            background-color: #f9fafb;
+            border-radius: 0.75rem;
+            transition: background-color 0.2s;
+        }
+        details > summary:hover {
+            background-color: #f3f4f6;
         }
         details > summary::-webkit-details-marker {
             display: none;
         }
+        details[open] > summary {
+            background-color: #eff6ff;
+            color: #1d4ed8;
+        }
         details[open] > summary::after {
             content: "−";
+            transform: rotate(180deg);
         }
         details:not([open]) > summary::after {
             content: "+";
@@ -75,12 +112,16 @@
             font-family: 'Inter', sans-serif;
             margin-left: 0.5rem;
             float: right;
+            font-size: 1.5rem;
+            line-height: 1;
+            transition: transform 0.3s ease;
         }
     </style>
 </head>
 <body class="p-4 sm:p-8">
 
     <div id="app" class="container mx-auto">
+        <!-- Timeline Notification Popup -->
         <div id="timeline-notification" class="fixed top-4 right-4 z-50 p-4 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 shadow-lg rounded-r-lg transform translate-x-full transition-transform duration-500 ease-in-out" role="alert">
             <p class="font-bold">Timeline Alert</p>
             <p id="timeline-message">Upcoming deadlines are near!</p>
@@ -91,33 +132,37 @@
             <p class="mt-2 text-xl text-gray-600">Your path from confusion to clarity</p>
         </header>
         
+        <!-- Navigation Bar -->
         <nav class="flex justify-center space-x-2 sm:space-x-4 p-2 bg-white rounded-full shadow-md mb-8">
-            <button id="nav-home" class="py-2 px-4 rounded-full font-semibold text-sm sm:text-base transition-colors hover:bg-gray-200">Home</button>
-            <button id="nav-quiz" class="py-2 px-4 rounded-full font-semibold text-sm sm:text-base transition-colors hover:bg-gray-200">Career Quest Quiz</button>
-            <button id="nav-colleges" class="py-2 px-4 rounded-full font-semibold text-sm sm:text-base transition-colors hover:bg-gray-200">Nearby Colleges</button>
-            <button id="nav-map" class="py-2 px-4 rounded-full font-semibold text-sm sm:text-base transition-colors hover:bg-gray-200">Career Maps</button>
+            <button id="nav-home" class="nav-button py-2 px-4 rounded-full font-semibold text-sm sm:text-base transition-colors hover:bg-gray-200">Home</button>
+            <button id="nav-quiz" class="nav-button py-2 px-4 rounded-full font-semibold text-sm sm:text-base transition-colors hover:bg-gray-200">Career Quest</button>
+            <button id="nav-colleges" class="nav-button py-2 px-4 rounded-full font-semibold text-sm sm:text-base transition-colors hover:bg-gray-200">Nearby Colleges</button>
+            <button id="nav-map" class="nav-button py-2 px-4 rounded-full font-semibold text-sm sm:text-base transition-colors hover:bg-gray-200">Career Maps</button>
         </nav>
 
         <div id="content-area">
             
+            <!-- Home Section -->
             <div id="section-home" class="card">
                 <h2 class="text-3xl font-bold text-blue-800 mb-4">Welcome to Your Career Journey</h2>
-                <p class="text-gray-700 mb-6">Start your journey to a purposeful career by taking our interactive "Career Quest" quiz to discover your strengths and interests. Your personalized dashboard awaits!</p>
-                <button id="start-quiz-btn" class="btn-primary">Start the Quiz</button>
+                <p class="text-gray-700 mb-6">Start your journey to a purposeful career by taking our interactive "Career Quest" quiz. Discover your strengths and interests to receive a personalized dashboard with career maps, college suggestions, and more!</p>
+                <button id="start-quiz-btn" class="btn-primary">Start the Career Quest</button>
                 
                 <div id="my-applications" class="mt-8 pt-8 border-t border-gray-200">
                     <h3 class="text-2xl font-bold mb-4">My Application Timeline</h3>
                     <div id="applications-list" class="space-y-4">
-                        <p class="text-gray-500">Add colleges from the "Nearby Colleges" section to track your applications.</p>
+                        <p class="text-gray-500">Add colleges from the "Nearby Colleges" section to track your applications here.</p>
                     </div>
                 </div>
             </div>
             
+            <!-- Quiz Section -->
             <div id="section-quiz" class="card hidden">
                 <h2 class="text-3xl font-bold text-blue-800 mb-6">Career Quest Quiz</h2>
                 
                 <div id="quiz-container">
-                    </div>
+                    <!-- Quiz questions will be injected here -->
+                </div>
                 
                 <div id="quiz-completion" class="text-center p-8 hidden">
                     <h3 class="text-2xl font-bold mb-4">You've completed the quiz!</h3>
@@ -126,77 +171,80 @@
                 </div>
 
                 <div id="quiz-results-display" class="mt-8 hidden">
-                    <h3 class="text-2xl font-bold mb-4">Your Personalized Results</h3>
-                    <div id="quiz-result-card" class="card p-6 border-blue-200 border-2 mb-6">
-                        <p class="text-xl font-semibold">Your Primary Inclination: <span id="quiz-result-text" class="text-blue-600"></span></p>
+                    <h3 class="text-2xl font-bold mb-4">Your Personalized Dashboard</h3>
+                    <div id="quiz-result-card" class="card p-6 bg-blue-50 border-blue-200 border-2 mb-6">
+                        <p class="text-xl font-semibold">Your Primary Inclination: <span id="quiz-result-text" class="text-blue-600 font-bold"></span></p>
+                        <p id="quiz-result-description" class="mt-2 text-gray-700"></p>
                     </div>
 
-                    <div class="space-x-4 flex justify-center mb-8">
-                        <button id="retake-quiz-btn" class="btn-primary">Retake Quiz</button>
-                    </div>
-                    
                     <div id="recommended-career-maps-container" class="mt-8">
                         <h4 class="text-xl font-semibold text-gray-800 mb-4">Recommended Career Maps</h4>
-                        <div id="recommended-career-maps" class="space-y-4">
-                            <p class="text-gray-500">Take the quiz to get personalized recommendations!</p>
-                        </div>
+                        <div id="recommended-career-maps" class="space-y-4"></div>
                     </div>
 
                     <div id="recommended-colleges-container" class="mt-8">
                         <h4 class="text-xl font-semibold text-gray-800 mb-4">Recommended Colleges</h4>
-                        <div id="recommended-colleges" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <p class="text-gray-500">Take the quiz to get personalized recommendations!</p>
-                        </div>
+                        <div id="recommended-colleges" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
                     </div>
                     
-                    <h4 class="text-xl font-semibold text-gray-800 mt-6 mb-4">Career Spotlights: Local Heroes</h4>
-                    <div id="career-spotlights" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        </div>
+                    <h4 class="text-xl font-semibold text-gray-800 mt-8 mb-4">Career Spotlights: Local Heroes</h4>
+                    <div id="career-spotlights" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
 
                     <div id="startup-hub" class="mt-8 pt-8 border-t border-gray-200 hidden">
-                        <h4 class="text-xl font-semibold text-gray-800 mt-8 mb-4">The Startup Resource Hub</h4>
+                        <h4 class="text-2xl font-bold text-green-700 mb-4">The Startup Resource Hub</h4>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <a href="#" class="card p-6 flex flex-col items-start hover:shadow-lg transition-shadow">
+                            <a href="http://jkedi.org/" target="_blank" rel="noopener noreferrer" class="card p-6 flex flex-col items-start hover:shadow-lg transition-shadow">
                                 <h5 class="text-lg font-bold text-blue-700">J&K Entrepreneurship Development Institute (JKEDI)</h5>
                                 <p class="text-sm text-gray-600 mt-2">Get training and support to start your business.</p>
                             </a>
-                            <a href="#" class="card p-6 flex flex-col items-start hover:shadow-lg transition-shadow">
+                            <a href="https://www.startupindia.gov.in/" target="_blank" rel="noopener noreferrer" class="card p-6 flex flex-col items-start hover:shadow-lg transition-shadow">
                                 <h5 class="text-lg font-bold text-blue-700">Startup India & MSME Loan Schemes</h5>
                                 <p class="text-sm text-gray-600 mt-2">Explore government schemes and financial aid for new ventures.</p>
                             </a>
                         </div>
                     </div>
+
+                    <div class="space-x-4 flex justify-center mt-12">
+                        <button id="retake-quiz-btn" class="btn-primary btn-secondary">Retake Quiz</button>
+                    </div>
                 </div>
             </div>
 
+            <!-- Colleges Section -->
             <div id="section-colleges" class="card hidden">
                 <h2 class="text-3xl font-bold text-blue-800 mb-6">Find Your College</h2>
                 <div class="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4 mb-6">
                     <button id="get-location-btn" class="btn-primary">Find Nearby Colleges</button>
                     <p class="font-semibold text-gray-700 hidden sm:block">or</p>
-                    <select id="location-filter" class="w-full sm:w-auto p-2 border rounded-lg">
+                    <select id="location-filter" class="w-full sm:w-auto p-3 border rounded-lg shadow-sm">
                         <option value="All Locations">All Locations</option>
                         <option value="Srinagar">Srinagar</option>
                         <option value="Jammu">Jammu</option>
                         <option value="Anantnag">Anantnag</option>
                         <option value="Baramulla">Baramulla</option>
+                        <option value="Awantipora">Awantipora</option>
                     </select>
+                </div>
+                <div id="compare-colleges-bar" class="hidden text-center my-4">
+                    <button id="compare-colleges-btn" class="btn-primary">Compare Selected</button>
                 </div>
                 
                 <div id="college-list" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    </div>
+                    <!-- Colleges will be injected here -->
+                </div>
             </div>
 
+            <!-- Career Map Section -->
             <div id="section-map" class="card hidden">
                 <h2 class="text-3xl font-bold text-blue-800 mb-6">Visual Career Maps</h2>
-                <p class="text-gray-700 mb-6">Follow a step-by-step roadmap for your desired career, including skills, courses, and scholarships.</p>
-
+                <p class="text-gray-700 mb-6">Follow a step-by-step roadmap for your desired career, including skills to learn, relevant courses, and scholarship opportunities.</p>
                 <div class="space-y-8" id="career-paths-container">
-                    </div>
-
+                    <!-- Career maps will be injected here -->
+                </div>
             </div>
         </div>
 
+        <!-- College Comparison Modal -->
         <div id="compare-modal" class="modal fixed inset-0 flex items-center justify-center p-4 z-50 hidden">
             <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-4xl max-h-full overflow-y-auto">
                 <div class="flex justify-between items-center mb-6">
@@ -204,7 +252,8 @@
                     <button class="text-gray-400 hover:text-gray-600 text-3xl font-bold" onclick="hideModal('compare-modal')">&times;</button>
                 </div>
                 <div id="modal-compare-content" class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    </div>
+                    <!-- Comparison content will be injected here -->
+                </div>
             </div>
         </div>
     </div>
@@ -215,9 +264,9 @@
         // State Management
         let currentView = 'home';
         let currentQuestionIndex = 0;
-        let quizResults = {};
-        let userLocation = { lat: 34.0837, lon: 74.7972 }; // Default to Srinagar
-        let collegesToCompare = [];
+        let quizAnswers = {};
+        let userLocation = null; // Let's not default location
+        let collegesToCompare = new Set();
         let myApplications = [];
         
         // Data Definitions
@@ -225,111 +274,81 @@
             {
                 question: "When faced with a problem, what's your first instinct?",
                 options: [
-                    { text: "Break it down and analyze the details.", personality: "Analytical", category: "Technical" },
-                    { text: "Look for a new, creative way to solve it.", personality: "Innovative", category: "Creative" },
-                    { text: "Collaborate with others to find a solution.", personality: "Collaborative", category: "Social" },
-                    { text: "Take charge and lead the effort to fix it.", personality: "Leader", category: "Entrepreneurial" }
+                    { text: "Break it down and analyze the details.", category: "Technical" },
+                    { text: "Look for a new, creative way to solve it.", category: "Creative" },
+                    { text: "Collaborate with others to find a solution.", category: "Social" },
+                    { text: "Take charge and lead the effort to fix it.", category: "Entrepreneurial" }
                 ]
             },
             {
                 question: "What kind of projects do you enjoy most?",
                 options: [
-                    { text: "Building something practical and functional.", personality: "Builder", category: "Technical" },
-                    { text: "Creating a work of art or design.", personality: "Artist", category: "Creative" },
-                    { text: "Helping people and making a positive impact.", personality: "Helper", category: "Social" },
-                    { text: "Starting something from scratch and seeing it grow.", personality: "Founder", category: "Entrepreneurial" }
+                    { text: "Building something practical and functional.", category: "Technical" },
+                    { text: "Creating a work of art or design.", category: "Creative" },
+                    { text: "Helping people and making a positive impact.", category: "Social" },
+                    { text: "Starting something from scratch and seeing it grow.", category: "Entrepreneurial" }
                 ]
             },
             {
                 question: "Which of these subjects interests you the most?",
                 options: [
-                    { text: "Physics, Mathematics, and Computer Science.", personality: "Logical", category: "Technical" },
-                    { text: "Literature, Art, and Music.", personality: "Expressive", category: "Creative" },
-                    { text: "Psychology, Sociology, and Political Science.", personality: "Empathetic", category: "Social" },
-                    { text: "Economics, Business, and Marketing.", personality: "Strategic", category: "Entrepreneurial" }
+                    { text: "Physics, Mathematics, and Computer Science.", category: "Technical" },
+                    { text: "Literature, Art, and Music.", category: "Creative" },
+                    { text: "Psychology, Sociology, and Political Science.", category: "Social" },
+                    { text: "Economics, Business, and Marketing.", category: "Entrepreneurial" }
                 ]
             },
-             {
+            {
                 question: "What motivates you in a team setting?",
                 options: [
-                    { text: "Achieving a well-defined goal.", personality: "Goal-Oriented", category: "Technical" },
-                    { text: "Contributing a unique idea or perspective.", personality: "Visionary", category: "Creative" },
-                    { text: "Building strong relationships with your teammates.", personality: "Harmonizer", category: "Social" },
-                    { text: "Leading the team and inspiring others.", personality: "Motivator", category: "Entrepreneurial" }
+                    { text: "Achieving a well-defined goal efficiently.", category: "Technical" },
+                    { text: "Contributing a unique, out-of-the-box idea.", category: "Creative" },
+                    { text: "Building strong relationships and ensuring harmony.", category: "Social" },
+                    { text: "Leading the team and driving towards a vision.", category: "Entrepreneurial" }
                 ]
             }
         ];
 
+        const resultDescriptions = {
+            "Technical": "You are analytical and enjoy understanding how things work. You're likely skilled in logic, math, and science, and are drawn to careers in engineering, IT, or research.",
+            "Creative": "You are imaginative and expressive, with a talent for design, art, and communication. Careers in media, fine arts, writing, or performance might be a great fit for you.",
+            "Social": "You are empathetic and community-oriented. You find fulfillment in helping others and contributing to society. Consider careers in education, healthcare, social work, or public service.",
+            "Entrepreneurial": "You are a natural leader and visionary, driven to innovate and build. You excel at spotting opportunities and managing projects. A path in business, management, or starting your own venture would suit you well."
+        };
+
         const careerPathData = [
-            {
-                degree: "B.Sc. Agriculture",
-                maps: [
-                    {
-                        title: "Agricultural Scientist",
-                        steps: [
-                            { name: "Undergraduate Degree", details: "Complete B.Sc. Agriculture or related degree.", skills: ["Soil Science", "Plant Biology"], courses: ["B.Sc. Agriculture", "Intro to Agronomy"], scholarships: ["State Agriculture Scholarships"] },
-                            { name: "Research & Specialization", details: "Join a research lab or master's program in crop science.", skills: ["Research Methods", "Statistics"], courses: ["M.Sc. Agriculture", "Plant Breeding"], scholarships: ["University Research Grants"] }
-                        ]
-                    }
-                ]
-            },
-            {
-                degree: "B.Voc / BBA",
-                maps: [
-                    {
-                        title: "Digital Marketing Specialist",
-                        steps: [
-                            { name: "Basics of Marketing", details: "Learn marketing fundamentals and digital tools.", skills: ["SEO", "Content Creation"], courses: ["Digital Marketing Basics", "Google Digital Garage"], scholarships: ["Platform-based Scholarships"] }
-                        ]
-                    }
-                ]
-            },
-            {
-                degree: "BA/MA Social Sciences",
-                maps: [
-                    {
-                        title: "Public Service Path",
-                        steps: [
-                            { name: "Foundational Studies", details: "Study history, polity and public administration.", skills: ["Critical Thinking", "Policy Analysis"], courses: ["Public Administration", "Sociology"], scholarships: ["Civil Services Coaching Scholarships"] }
-                        ]
-                    }
-                ]
-            },
-            {
-                degree: "B.Tech / B.Sc. Agriculture",
-                maps: [
-                    {
-                        title: "Agri-Tech Entrepreneur",
-                        steps: [
-                            { name: "Technical Foundation", details: "Learn about agri systems and technology integration.", skills: ["IoT", "System Design"], courses: ["AgriTech Intro", "IoT for Agriculture"], scholarships: ["Startup Grants & Incubators"] }
-                        ]
-                    }
-                ]
-            }
+            { category: "Technical", degree: "B.Tech / B.E.", title: "Software Engineer", steps: [{ name: "Foundation in Coding", details: "Learn core programming languages.", skills: ["Java", "Python", "Data Structures"], courses: [{name: "CS50 on edX", url:"https://www.edx.org/course/introduction-computer-science-harvardx-cs50x"}, {name: "FreeCodeCamp", url:"https://www.freecodecamp.org/"}], scholarships: [{name: "Google Scholarships", url: "https://buildyourfuture.withgoogle.com/scholarships"}] }] },
+            { category: "Creative", degree: "B.A. Fine Arts", title: "Graphic Designer", steps: [{ name: "Design Fundamentals", details: "Master principles of visual design.", skills: ["Adobe Photoshop", "Illustrator"], courses: [{name: "Canva Design School", url:"https://www.canva.com/designschool/"}, {name:"Coursera UI/UX", url:"https://www.coursera.org/professional-certificates/google-ux-design"}], scholarships: [{name: "Adobe Design Scholarships", url:"https://www.adobe.com/scholarships"}] }] },
+            { category: "Social", degree: "B.S.W. (Bachelor of Social Work)", title: "Social Worker", steps: [{ name: "Community Engagement", details: "Gain experience through volunteering and internships.", skills: ["Empathy", "Counseling"], courses: [{name: "Intro to Social Work on Coursera", url:"https://www.coursera.org/learn/social-work"}], scholarships: [{name: "Tata Trust Scholarships", url:"https://www.tatatrusts.org/our-work/education/scholarships"}] }] },
+            { category: "Entrepreneurial", degree: "BBA", title: "Startup Founder", steps: [{ name: "Business Acumen", details: "Learn about marketing, finance, and operations.", skills: ["Business Planning", "Networking"], courses: [{name: "Y Combinator Startup School", url:"https://www.ycombinator.com/school"}], scholarships: [{name: "JKEDI Grants", url:"http://jkedi.org/"}] }] },
+            { category: "Technical", degree: "B.Sc. Agriculture", title: "Agricultural Scientist", steps: [{ name: "Undergraduate Degree", details: "Complete B.Sc. Agriculture or related degree.", skills: ["Soil Science", "Plant Biology"], courses: [{name: "Intro to Agronomy on Coursera", url:"https://www.coursera.org/courses?query=agronomy"}], scholarships: [{name: "ICAR Scholarships", url:"https://icar.org.in/scholarships"}] }] },
+            { category: "Entrepreneurial", degree: "B.Voc / BBA", title: "Digital Marketing Specialist", steps: [{ name: "Basics of Marketing", details: "Learn marketing fundamentals and digital tools.", skills: ["SEO", "Content Creation"], courses: [{name: "Google Digital Garage", url:"https://learndigital.withgoogle.com/digitalgarage/"}, {name: "HubSpot Academy", url:"https://academy.hubspot.com/"}], scholarships: [] }] },
+            { category: "Social", degree: "B.A. Political Science / Public Admin", title: "Civil Servant (KAS/IAS)", steps: [{ name: "Build Foundation", details: "Focus on NCERTs and standard books for core subjects.", skills: ["Critical Analysis", "Writing", "General Knowledge"], courses: [{name: "Vision IAS", url:"https://visionias.in/"}, {name:"Unacademy", url:"https://unacademy.com/"}], scholarships: [{name: "Govt. Coaching Schemes", url:"https://socialjustice.gov.in/schemes/36"}] }] },
+            { category: "Technical", degree: "MBBS (after 10+2 Science)", title: "Doctor", steps: [{ name: "NEET Preparation", details: "Prepare and qualify the National Eligibility cum Entrance Test (NEET-UG).", skills: ["Biology", "Chemistry", "Physics", "Problem Solving"], courses: [{name: "Aakash Institute", url:"https://www.aakash.ac.in/"}, {name:"Allen Career Institute", url:"https://www.allen.ac.in/"}], scholarships: [{name: "National Scholarship Portal", url:"https://scholarships.gov.in/"}] }] },
         ];
 
         const collegeData = [
-            { id: 1, name: "University of Jammu", location: "Jammu", fees: "₹30,000/year", courses: ["B.Sc.", "B.A.", "B. Tech."], facilities: ["Library", "Hostel", "Labs"], lat: 32.7357, lon: 74.8698 },
-            { id: 2, name: "Govt. Degree College, Baramulla", location: "Baramulla", fees: "₹15,000/year", courses: ["B.Sc.", "B.Com."], facilities: ["Library", "Sports"], lat: 34.2045, lon: 74.3644 },
-            { id: 3, name: "Islamic University of Science & Technology", location: "Awantipora", fees: "₹25,000/year", courses: ["B.Tech.", "B.Sc."], facilities: ["Research Labs", "Hostels"], lat: 33.8860, lon: 75.0500 },
-            { id: 4, name: "Govt. College for Women, M.A. Road", location: "Srinagar", fees: "₹12,000/year", courses: ["B.A.", "B.Voc."], facilities: ["Auditorium", "Library"], lat: 34.0837, lon: 74.7972 },
-            { id: 5, name: "GDC Boys, Anantnag", location: "Anantnag", fees: "₹10,000/year", courses: ["B.A.", "B.Sc."], facilities: ["Laboratories", "Hostel"], lat: 33.7317, lon: 75.1539 }
+            { id: 1, name: "University of Jammu", location: "Jammu", fees: "₹30,000", courses: ["B.Sc.", "B.A.", "B.Tech.", "BBA"], facilities: ["Library", "Hostel", "Labs", "Wi-Fi"], lat: 32.7357, lon: 74.8698, category: ["Technical", "Social"] },
+            { id: 2, name: "Govt. Degree College, Baramulla", location: "Baramulla", fees: "₹15,000", courses: ["B.Sc.", "B.Com."], facilities: ["Library", "Sports"], lat: 34.2045, lon: 74.3644, category: ["Technical"] },
+            { id: 3, name: "IUST, Awantipora", location: "Awantipora", fees: "₹25,000", courses: ["B.Tech.", "B.Sc."], facilities: ["Research Labs", "Hostels"], lat: 33.8860, lon: 75.0500, category: ["Technical"] },
+            { id: 4, name: "Govt. College for Women, M.A. Road", location: "Srinagar", fees: "₹12,000", courses: ["B.A.", "B.Voc.", "B.A. Fine Arts"], facilities: ["Auditorium", "Library"], lat: 34.0837, lon: 74.7972, category: ["Creative", "Social"] },
+            { id: 5, name: "GDC Boys, Anantnag", location: "Anantnag", fees: "₹10,000", courses: ["B.A.", "B.Sc."], facilities: ["Laboratories", "Hostel"], lat: 33.7317, lon: 75.1539, category: ["Social"] }
         ];
 
         const spotlightData = [
-            { name: "Tariq Ahmad Wani", bio: "Agri-tech entrepreneur.", category: "Entrepreneurial" },
-            { name: "Mir Muneeb", bio: "Software engineer.", category: "Technical" },
-            { name: "Sana Imtiyaz Hussaini", bio: "Home-based baker.", category: "Entrepreneurial" },
-            { name: "Zahoor Ahmad", bio: "Social worker.", category: "Social" }
+            { name: "Tariq Ahmad Wani", bio: "Agri-tech entrepreneur revolutionizing local farming.", category: "Entrepreneurial" },
+            { name: "Mir Muneeb", bio: "Software engineer at a leading tech firm, building global products.", category: "Technical" },
+            { name: "Sana Imtiyaz Hussaini", bio: "Home-based baker and founder of a popular local patisserie.", category: "Creative" },
+            { name: "Zahoor Ahmad", bio: "Social worker dedicated to empowering underprivileged communities.", category: "Social" }
         ];
 
         const timelineEvents = [
-            { id: 1, name: "SKUAST Admission Application", date: "2025-10-15" },
-            { id: 2, name: "JKEDI Startup Training Registration", date: "2025-11-05" },
-            { id: 3, name: "National Scholarship Portal Deadline", date: "2025-12-01" },
+            { id: 1, name: "SKUAST Admission Application Deadline", date: "2025-10-15" },
+            { id: 2, name: "JKEDI Startup Training Registration Ends", date: "2025-11-05" },
+            { id: 3, name: "National Scholarship Portal Closes", date: "2025-12-01" },
         ];
 
-        // Element references
+        // Element References
         const views = {
             home: document.getElementById('section-home'),
             quiz: document.getElementById('section-quiz'),
@@ -361,7 +380,300 @@
         const retakeQuizBtn = document.getElementById('retake-quiz-btn');
 
         // --- Core Functions ---
+        
         function navigate(view) {
+            currentView = view;
             Object.values(views).forEach(v => v.classList.add('hidden'));
             views[view].classList.remove('hidden');
-            Object.values(navButtons).forEach(b => b.cl
+            Object.values(navButtons).forEach(b => b.classList.remove('active'));
+            navButtons[view].classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        function startQuiz() {
+            currentQuestionIndex = 0;
+            quizAnswers = {};
+            quizCompletion.classList.add('hidden');
+            quizResultsDisplay.classList.add('hidden');
+            quizContainer.classList.remove('hidden');
+            renderQuestion();
+            navigate('quiz');
+        }
+
+        function renderQuestion() {
+            const questionData = quizData[currentQuestionIndex];
+            quizContainer.innerHTML = `
+                <div class="mb-4">
+                    <p class="text-xl font-semibold text-gray-800">${currentQuestionIndex + 1}. ${questionData.question}</p>
+                    <div class="w-full bg-gray-200 rounded-full h-2.5 mt-2">
+                        <div class="bg-blue-600 h-2.5 rounded-full" style="width: ${((currentQuestionIndex + 1) / quizData.length) * 100}%"></div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    ${questionData.options.map((opt, i) => `
+                        <div class="quiz-option p-4 text-center" onclick="selectOption('${opt.category}', this)">
+                            ${opt.text}
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+        
+        function selectOption(category, element) {
+            quizAnswers[currentQuestionIndex] = category;
+            
+            // Highlight selected option
+            document.querySelectorAll('.quiz-option').forEach(opt => opt.classList.remove('selected'));
+            element.classList.add('selected');
+
+            setTimeout(() => {
+                currentQuestionIndex++;
+                if (currentQuestionIndex < quizData.length) {
+                    renderQuestion();
+                } else {
+                    quizContainer.classList.add('hidden');
+                    quizCompletion.classList.remove('hidden');
+                }
+            }, 500); // 0.5-second delay
+        }
+
+        function showResults() {
+            const counts = {};
+            Object.values(quizAnswers).forEach(answer => {
+                counts[answer] = (counts[answer] || 0) + 1;
+            });
+
+            const primaryCategory = Object.keys(counts).reduce((a, b) => counts[a] > counts[b] ? a : b);
+            
+            quizCompletion.classList.add('hidden');
+            quizResultsDisplay.classList.remove('hidden');
+            
+            document.getElementById('quiz-result-text').innerText = primaryCategory;
+            document.getElementById('quiz-result-description').innerText = resultDescriptions[primaryCategory];
+
+            // Render personalized content
+            renderRecommendedContent(primaryCategory);
+        }
+
+        function renderRecommendedContent(category) {
+            // Filter and render career maps
+            const filteredMaps = careerPathData.filter(path => path.category === category);
+            recommendedCareerMaps.innerHTML = filteredMaps.map(path => createCareerMapHTML(path)).join('');
+
+            // Filter and render colleges
+            const filteredColleges = collegeData.filter(college => college.category.includes(category));
+            recommendedColleges.innerHTML = filteredColleges.map(college => createCollegeCardHTML(college)).join('');
+
+            // Filter and render spotlights
+            const filteredSpotlights = spotlightData.filter(s => s.category === category);
+            spotlightsContainer.innerHTML = filteredSpotlights.map(s => `
+                <div class="card p-4 text-center">
+                    <h5 class="font-bold text-lg text-blue-800">${s.name}</h5>
+                    <p class="text-sm text-gray-600">${s.bio}</p>
+                </div>
+            `).join('');
+
+            // Show startup hub if entrepreneurial
+            if (category === 'Entrepreneurial') {
+                startupHub.classList.remove('hidden');
+            } else {
+                startupHub.classList.add('hidden');
+            }
+        }
+        
+        function createCareerMapHTML(path) {
+            return `
+                <details class="bg-white rounded-xl shadow-sm">
+                    <summary class="text-lg text-gray-800">${path.degree} <span class="text-blue-600 font-semibold">-> ${path.title}</span></summary>
+                    <div class="p-4 border-t">
+                        ${path.steps.map(step => `
+                            <div class="mb-4">
+                                <h4 class="font-semibold text-md">${step.name}</h4>
+                                <p class="text-sm text-gray-600">${step.details}</p>
+                                <p class="text-sm mt-1"><strong>Skills:</strong> ${step.skills.join(', ')}</p>
+                                <p class="text-sm mt-1"><strong>Recommended Courses:</strong> ${step.courses.map(c => `<a href="${c.url}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">${c.name}</a>`).join(', ')}</p>
+                                <p class="text-sm mt-1"><strong>Scholarships:</strong> ${step.scholarships.length > 0 ? step.scholarships.map(s => `<a href="${s.url}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">${s.name}</a>`).join(', ') : 'N/A'}</p>
+                            </div>
+                        `).join('')}
+                    </div>
+                </details>
+            `;
+        }
+        
+        function renderAllCareerMaps() {
+            careerPathsContainer.innerHTML = careerPathData.map(createCareerMapHTML).join('');
+        }
+        
+        function renderColleges(filter = 'All Locations') {
+            let filteredColleges = collegeData;
+            if (filter !== 'All Locations') {
+                filteredColleges = collegeData.filter(c => c.location === filter);
+            }
+
+            if (userLocation) {
+                filteredColleges.forEach(c => {
+                    c.distance = calculateDistance(userLocation.lat, userLocation.lon, c.lat, c.lon);
+                });
+                filteredColleges.sort((a, b) => a.distance - b.distance);
+            }
+            
+            collegeList.innerHTML = filteredColleges.map(createCollegeCardHTML).join('');
+        }
+
+        function createCollegeCardHTML(college) {
+            const distanceText = college.distance ? `<p class="text-sm text-green-600 font-semibold">${college.distance.toFixed(1)} km away</p>` : '';
+            return `
+                <div class="card p-6 flex flex-col justify-between">
+                    <div>
+                        <h4 class="text-xl font-bold text-blue-800">${college.name}</h4>
+                        <p class="text-gray-600 font-semibold">${college.location}</p>
+                        ${distanceText}
+                        <p class="mt-2"><strong>Courses:</strong> ${college.courses.join(', ')}</p>
+                        <p><strong>Facilities:</strong> ${college.facilities.join(', ')}</p>
+                        <p><strong>Approx. Fees:</strong> ${college.fees}/year</p>
+                    </div>
+                    <div class="mt-4 flex items-center justify-between">
+                        <button class="btn-primary text-sm py-2 px-4" onclick="addToApplications(${college.id})">Add to Timeline</button>
+                        <label class="flex items-center space-x-2 cursor-pointer">
+                            <input type="checkbox" class="compare-checkbox" onchange="toggleCompare(${college.id})" ${collegesToCompare.has(college.id) ? 'checked' : ''}>
+                            <span class="text-sm font-semibold">Compare</span>
+                        </label>
+                    </div>
+                </div>
+            `;
+        }
+
+        function toggleCompare(collegeId) {
+            if (collegesToCompare.has(collegeId)) {
+                collegesToCompare.delete(collegeId);
+            } else {
+                collegesToCompare.add(collegeId);
+            }
+            document.getElementById('compare-colleges-bar').classList.toggle('hidden', collegesToCompare.size < 2);
+        }
+
+        function renderComparison() {
+            const selectedColleges = collegeData.filter(c => collegesToCompare.has(c.id));
+            const content = document.getElementById('modal-compare-content');
+            content.innerHTML = selectedColleges.map(c => `
+                <div class="border p-4 rounded-lg">
+                    <h4 class="text-xl font-bold text-blue-800">${c.name}</h4>
+                    <p class="font-semibold">${c.location}</p>
+                    <ul class="list-disc list-inside mt-2 space-y-1">
+                        <li><strong>Fees:</strong> ${c.fees}/year</li>
+                        <li><strong>Courses:</strong> ${c.courses.join(', ')}</li>
+                        <li><strong>Facilities:</strong> ${c.facilities.join(', ')}</li>
+                    </ul>
+                </div>
+            `).join('');
+            showModal('compare-modal');
+        }
+
+        function showModal(id) { document.getElementById(id).classList.remove('hidden'); }
+        function hideModal(id) { document.getElementById(id).classList.add('hidden'); }
+        
+        function getUserLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(position => {
+                    userLocation = {
+                        lat: position.coords.latitude,
+                        lon: position.coords.longitude
+                    };
+                    renderColleges();
+                }, () => {
+                    alert("Location access denied. Showing all colleges.");
+                    renderColleges();
+                });
+            } else {
+                alert("Geolocation is not supported by this browser.");
+            }
+        }
+        
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371; // Radius of the Earth in km
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return R * c;
+        }
+
+        function addToApplications(collegeId) {
+            const college = collegeData.find(c => c.id === collegeId);
+            if (college && !myApplications.find(app => app.id === collegeId)) {
+                const deadline = new Date();
+                deadline.setDate(deadline.getDate() + 60); // Default 60-day deadline
+                myApplications.push({ ...college, deadline: deadline.toISOString().split('T')[0] });
+                renderMyApplications();
+            }
+        }
+        
+        function renderMyApplications() {
+            if (myApplications.length === 0) {
+                myApplicationsList.innerHTML = '<p class="text-gray-500">Add colleges to track your applications here.</p>';
+                return;
+            }
+            myApplicationsList.innerHTML = myApplications.map(app => `
+                <div class="p-4 bg-gray-50 rounded-lg flex justify-between items-center">
+                    <div>
+                        <p class="font-bold">${app.name}</p>
+                        <p class="text-sm text-gray-600">Deadline: ${app.deadline}</p>
+                    </div>
+                    <button class="text-red-500 hover:text-red-700 font-semibold" onclick="removeApplication(${app.id})">Remove</button>
+                </div>
+            `).join('');
+        }
+
+        function removeApplication(collegeId) {
+            myApplications = myApplications.filter(app => app.id !== collegeId);
+            renderMyApplications();
+        }
+        
+        function checkTimeline() {
+            const today = new Date();
+            const upcoming = timelineEvents.find(event => {
+                const eventDate = new Date(event.date);
+                const diffDays = (eventDate - today) / (1000 * 60 * 60 * 24);
+                return diffDays > 0 && diffDays <= 30; // Within the next 30 days
+            });
+
+            if (upcoming) {
+                const notification = document.getElementById('timeline-notification');
+                document.getElementById('timeline-message').innerText = `${upcoming.name} is approaching on ${upcoming.date}!`;
+                notification.classList.remove('translate-x-full');
+                setTimeout(() => {
+                    notification.classList.add('translate-x-full');
+                }, 7000); // Hide after 7 seconds
+            }
+        }
+
+        // --- Event Listeners and Initialization ---
+        window.addEventListener('DOMContentLoaded', () => {
+            // Navigation listeners
+            navButtons.home.addEventListener('click', () => navigate('home'));
+            navButtons.quiz.addEventListener('click', startQuiz);
+            navButtons.colleges.addEventListener('click', () => navigate('colleges'));
+            navButtons.map.addEventListener('click', () => navigate('map'));
+            
+            // Button listeners
+            startQuizBtn.addEventListener('click', startQuiz);
+            showResultsBtn.addEventListener('click', showResults);
+            retakeQuizBtn.addEventListener('click', startQuiz);
+            getLocationBtn.addEventListener('click', getUserLocation);
+            locationFilter.addEventListener('change', (e) => renderColleges(e.target.value));
+            document.getElementById('compare-colleges-btn').addEventListener('click', renderComparison);
+            
+            // Initial setup
+            navigate('home');
+            renderAllCareerMaps();
+            renderColleges();
+            renderMyApplications();
+            checkTimeline();
+        });
+
+    </script>
+</body>
+</html>
+
