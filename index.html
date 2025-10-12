@@ -389,14 +389,29 @@
             chatMessages.appendChild(el); chatMessages.scrollTop = chatMessages.scrollHeight;
         }
         async function getGeminiResponse(prompt) {
-            const apiKey = ""; // Leave blank, will be handled by the environment
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
-            const systemPrompt = "You are a friendly and encouraging career counselor for students in Jammu & Kashmir. Keep answers concise, helpful, and relevant to their local context. If you don't know an answer, say so. Use simple markdown for formatting.";
-            const payload = { contents: [{ parts: [{ text: prompt }] }], systemInstruction: { parts: [{ text: systemPrompt }] } };
-            const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-            if (!response.ok) throw new Error(`API request failed with status ${response.status}`);
+            const apiUrl = `https://chat-lemon-ten.vercel.app/api/chat`;
+            const payload = { 
+                contents: [{ 
+                    parts: [{ 
+                        text: "You are a career counselor for students in Jammu & Kashmir. Keep your answers concise, helpful, and relevant to their context. Prompt: " + prompt 
+                    }] 
+                }], 
+            };
+            const response = await fetch(apiUrl, { 
+                method: 'POST', 
+                headers: { 'Content-Type': 'application/json' }, 
+                body: JSON.stringify(payload) 
+            });
+            if (!response.ok) {
+                throw new Error(`API request failed with status ${response.status}`);
+            }
             const result = await response.json();
-            return result.candidates?.[0]?.content?.parts?.[0]?.text || "Sorry, I couldn't generate a response right now.";
+            if (result.candidates && result.candidates.length > 0) {
+                return result.candidates[0].content?.parts?.[0]?.text || "Sorry, I couldn't generate a response right now.";
+            } else {
+                console.error("Chatbot API Error:", result);
+                return "I'm having trouble generating a response. The service might be temporarily down.";
+            }
         }
         async function handleChatMessage() {
             const userInput = chatInput.value.trim(); if (userInput === "") return;
