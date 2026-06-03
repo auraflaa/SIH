@@ -1,4 +1,13 @@
+<div align="center">
+
 # J&K Career Navigator
+
+
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![HTML](https://img.shields.io/badge/HTML-Static-orange.svg)](https://developer.mozilla.org/en-US/docs/Web/HTML)
+
+</div>
+
+---
 
 J&K Career Navigator is a comprehensive, all-in-one web application designed to guide students in Jammu & Kashmir from confusion to clarity on their path to a successful career. The platform integrates an AI-powered counselor, a personality-based quiz, and extensive local data on colleges, exams, and career roadmaps to provide a personalized and supportive experience.
 
